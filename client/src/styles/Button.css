@@ -1,13 +1,16 @@
 .button {
-    height: 40px;
-    border: 1px solid #16878c;
-    background-color: white;
-    color: #16878c;
-    border-radius: 5px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); 
-  }
-  
-  .button:hover {
-    outline: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.22);
-  }
+  height: 40px;
+  border: none; /* Removido para un diseño más limpio */
+  background-color: #a85a32; /* Color más cálido y acogedor */
+  color: white; /* Contraste con el color de fondo */
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  font-family: 'Playfair Display', serif; /* Fuente más elegante */
+  cursor: pointer; /* Indicar que es clickeable */
+  transition: background-color 0.3s, box-shadow 0.3s; /* Suavizado de transiciones */
+}
+
+.button:hover {
+  background-color: #8d4e2b; /* Oscurecer el botón al pasar el mouse */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25), 0 3px 6px rgba(0,0,0,0.22); /* Sombra más pronunciada */
+}
