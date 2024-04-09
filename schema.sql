@@ -1,92 +1,132 @@
-CREATE TABLE Usuario (
-    UsuarioID INT PRIMARY KEY,
-    UsuarioNombre VARCHAR(255),
-    Contraseña VARCHAR(255),
-    TipoUsuario VARCHAR(255)
+CREATE TABLE RestaurantUser (
+    UserID SERIAL PRIMARY KEY,
+    UserName VARCHAR(255) NOT NULL,
+    PasswordHash VARCHAR(255) NOT NULL, -- Cambiado a PasswordHash y almacenará el hash de la contraseña.
+    UserType VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE Área (
-    AreaID INT PRIMARY KEY,
-    Nombre VARCHAR(255),
-    EsFumadores BOOLEAN
+CREATE TABLE Area (
+    AreaID SERIAL PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    IsSmoking BOOLEAN NOT NULL
 );
 
-CREATE TABLE Mesa (
-    MesaID INT PRIMARY KEY,
-    AreaID INT,
-    Capacidad INT,
-    EsMovible BOOLEAN,
-    FOREIGN KEY (AreaID) REFERENCES Área(AreaID)
+CREATE TABLE RestaurantTable (
+    TableID SERIAL PRIMARY KEY,
+    AreaID INT NOT NULL,
+    Capacity INT NOT NULL,
+    IsMovable BOOLEAN NOT NULL,
+    FOREIGN KEY (AreaID) REFERENCES Area(AreaID)
 );
 
-CREATE TABLE Pedido (
-    PedidoID INT PRIMARY KEY,
-    MesaID INT,
-    UsuarioID INT,
-    FechaHora DATETIME,
-    Estado VARCHAR(255),
-    Propina FLOAT,
-    FOREIGN KEY (MesaID) REFERENCES Mesa(MesaID),
-    FOREIGN KEY (UsuarioID) REFERENCES Usuario(UserID)
+CREATE TABLE Order (
+    OrderID SERIAL PRIMARY KEY,
+    TableID INT NOT NULL,
+    UserID INT NOT NULL,
+    DateTime TIMESTAMP NOT NULL, -- Cambiado a TIMESTAMP
+    Status VARCHAR(255) NOT NULL,
+    Tip FLOAT,
+    FOREIGN KEY (TableID) REFERENCES RestaurantTable(TableID),
+    FOREIGN KEY (UserID) REFERENCES RestaurantUser(UserID)
 );
 
-CREATE TABLE PedidoDetalle (
-    PedidoID INT,
-    PlatoID INT,
-    BebidaID INT,
-    Cantidad INT,
-    FOREIGN KEY (PedidoID) REFERENCES Pedido(PedidoID),
-    FOREIGN KEY (PlatoID) REFERENCES Plato(PlatoID),
-    FOREIGN KEY (BebidaID) REFERENCES Bebida(BebidaID)
+CREATE TABLE Item (
+    ItemID SERIAL PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    Description TEXT,
+    Price FLOAT NOT NULL,
+    ItemType VARCHAR(255) NOT NULL -- 'Plate' o 'Drink'
 );
 
-CREATE TABLE Plato (
-    PlatoID INT PRIMARY KEY,
-    Nombre VARCHAR(255),
-    Descripción TEXT,
-    Precio FLOAT
+CREATE TABLE OrderDetail (
+    OrderDetailID SERIAL PRIMARY KEY,
+    OrderID INT NOT NULL,
+    ItemID INT NOT NULL,
+    Quantity INT NOT NULL,
+    FOREIGN KEY (OrderID) REFERENCES Order(OrderID),
+    FOREIGN KEY (ItemID) REFERENCES Item(ItemID)
 );
 
-CREATE TABLE Bebida (
-    BebidaID INT PRIMARY KEY,
-    Nombre VARCHAR(255),
-    Descripción TEXT,
-    Precio FLOAT
+CREATE TABLE Invoice (
+    InvoiceID SERIAL PRIMARY KEY,
+    OrderID INT NOT NULL,
+    CustomerNit VARCHAR(255),
+    CustomerName VARCHAR(255) NOT NULL,
+    CustomerAddress TEXT NOT NULL,
+    DateTime TIMESTAMP NOT NULL, -- Cambiado a TIMESTAMP
+    FOREIGN KEY (OrderID) REFERENCES Order(OrderID)
 );
 
-CREATE TABLE Factura (
-    FacturaID INT PRIMARY KEY,
-    PedidoID INT,
-    ClienteNit VARCHAR(255),
-    ClienteNombre VARCHAR(255),
-    ClienteDirección TEXT,
-    FechaHora DATETIME,
-    FOREIGN KEY (PedidoID) REFERENCES Pedido(PedidoID)
+CREATE TABLE Payment (
+    PaymentID SERIAL PRIMARY KEY,
+    InvoiceID INT NOT NULL,
+    Type VARCHAR(255) NOT NULL,
+    Amount FLOAT NOT NULL,
+    FOREIGN KEY (InvoiceID) REFERENCES Invoice(InvoiceID)
 );
 
-CREATE TABLE FormaPago (
-    FormaPagoID INT PRIMARY KEY,
-    FacturaID INT,
-    Tipo VARCHAR(255),
-    Monto FLOAT,
-    FOREIGN KEY (FacturaID) REFERENCES Factura(FacturaID)
+CREATE TABLE Survey (
+    SurveyID SERIAL PRIMARY KEY,
+    OrderID INT NOT NULL,
+    WaiterQuality INT NOT NULL CHECK (WaiterQuality BETWEEN 1 AND 5),
+    OrderAccuracy INT NOT NULL CHECK (OrderAccuracy BETWEEN 1 AND 5),
+    FOREIGN KEY (OrderID) REFERENCES Order(OrderID)
 );
 
-CREATE TABLE Encuesta (
-    EncuestaID INT PRIMARY KEY,
-    PedidoID INT,
-    CalidadMesero INT,
-    ExactitudPedido INT,
-    FOREIGN KEY (PedidoID) REFERENCES Pedido(PedidoID)
+CREATE TABLE Complaint (
+    ComplaintID SERIAL PRIMARY KEY,
+    Customer VARCHAR(255) NOT NULL,
+    DateTime TIMESTAMP NOT NULL, -- Cambiado a TIMESTAMP
+    Reason VARCHAR(255) NOT NULL,
+    Classification INT NOT NULL CHECK (Classification BETWEEN 1 AND 5),
+    Personnel VARCHAR(255),
+    ItemID INT, -- Cambiado para permitir que la queja sea sobre cualquier ítem, no solo platos.
+    FOREIGN KEY (ItemID) REFERENCES Item(ItemID)
 );
 
-CREATE TABLE Queja (
-    QuejaID INT PRIMARY KEY,
-    Cliente VARCHAR(255),
-    FechaHora DATETIME,
-    Motivo VARCHAR(255),
-    Clasificación INT,
-    Personal VARCHAR(255),
-    PlatoID INT,
-    FOREIGN KEY (PlatoID) REFERENCES Plato(PlatoID)
-);
+-- Índice para la tabla Order en las columnas TableID y UserID
+CREATE INDEX idx_order_tableid_userid ON "Order"(TableID, UserID);
+
+-- Índice para la tabla OrderDetail en las columnas OrderID y ItemID
+CREATE INDEX idx_orderdetail_orderid_itemid ON OrderDetail(OrderID, ItemID);
+
+-- Índice para la tabla Invoice en la columna OrderID
+CREATE INDEX idx_invoice_orderid ON Invoice(OrderID);
+
+-- Índice para la tabla Payment en la columna InvoiceID
+CREATE INDEX idx_payment_invoiceid ON Payment(InvoiceID);
+
+
+-- Actualización de Estado de Mesa
+CREATE OR REPLACE FUNCTION update_table_status()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.Status = 'Pagada' THEN
+        UPDATE RestaurantTable
+        SET Available = TRUE
+        WHERE TableID = NEW.TableID;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_table_status
+AFTER UPDATE ON "Order"
+FOR EACH ROW
+WHEN (OLD.Status <> 'Pagada' AND NEW.Status = 'Pagada')
+EXECUTE FUNCTION update_table_status();
+
+-- Registro de actividades 
+CREATE OR REPLACE FUNCTION log_order_activity()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO OrderActivityLog(OrderID, ActionType, ActionTimestamp, UserID)
+    VALUES (NEW.OrderID, TG_OP, CURRENT_TIMESTAMP, NEW.UserID);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_log_order_activity
+AFTER INSERT OR UPDATE OR DELETE ON "Order"
+FOR EACH ROW
+EXECUTE FUNCTION log_order_activity();
