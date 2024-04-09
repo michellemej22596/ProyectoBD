@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 
-import Home from './Pages/Home'
-import Grades from './Pages/Grades'
-import About from './Pages/About'
-import Logout from './Pages/Logout'
-import Login from './Login'
+import Home from '/pages/Home'
+import Grades from '/pages/Grades'
+import About from '/pages/About'
+import Logout from '/pages/Logout'
+import Login from '/pages/Login'
 
 const routes = {
   '/': {
