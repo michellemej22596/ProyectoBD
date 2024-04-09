@@ -1,7 +1,8 @@
+import React from 'react';
 import { useState } from 'react'
 import PropTypes from 'prop-types'
 
-import '/styles/Input.css'
+import '../styles/Input.css'
 
 const Input = ({ label, placeholder, value, type, onChange }) => {
   const [ eyeClosed, setEyeClosed ] = useState(true) 

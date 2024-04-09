@@ -1,6 +1,7 @@
+import React from 'react';
 import { useEffect, useState } from 'react'
-import '/styles/App.css'
-import Login from '/pages/Login'
+import './styles/App.css'
+import Login from './pages/Login'
 import Pages from './router'
 
 function App() {

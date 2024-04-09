@@ -1,9 +1,10 @@
+import React from 'react';
 import { useState } from 'react'
 import { md5 } from 'js-md5'
 import { PropTypes } from 'prop-types'
-import Button from '/components/Button'
-import Input from '/components/Input'
-import '/styles/Login.css'
+import Button from '../components/Button'
+import Input from '../components/Input'
+import '../styles/Login.css'
 
 const Login = ({ setToken, navigate }) => {
   const [username, setUsername] = useState()
