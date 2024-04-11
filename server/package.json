@@ -1,0 +1,13 @@
+{
+  "name": "proyectobd",
+  "version": "1.0.0",
+  "description": "Michelle Mejia 22596 y  Silvia Illescas 22376",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "pg": "^8.11.5"
+  }
+}
