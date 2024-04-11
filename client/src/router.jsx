@@ -7,6 +7,9 @@ import Grades from './pages/Grades'
 import About from './pages/About'
 import Logout from './pages/Logout'
 import Login from './pages/Login'
+import Pedidos from './pages/Pedidos'
+import Cocina from './pages/Cocina'
+import Reporte from './pages/Reporte'
 
 const routes = {
   '/': {
@@ -28,8 +31,21 @@ const routes = {
   '/logout': {
     component: Logout,
     requiresAuth: false
+  },
+  '/pedidos': { // Agrega la ruta para la pantalla de Pedido
+    component: Pedidos,
+    requiresAuth: false
+  },
+  '/cocina': { 
+    component: Cocina,
+    requiresAuth: false
+  },
+  '/Reporte': { 
+      component: Reporte,
+      requiresAuth: false
   }
-}
+  }
+
 
 const Pages = ({ token, setToken }) => {
   const isLoggedIn = !!localStorage.getItem('access_token')
@@ -65,7 +81,15 @@ return (
         <li className={page === '/' ? 'active' : ''}> 
           <a href="/" onClick={() => setPage('/home')}>Home</a>
         </li>
-
+        <li className={page === '/pedidos' ? 'active' : ''}>
+        <a href="#/pedidos" onClick={() => setPage('/pedidos')}>Pedidos</a>
+      </li>
+      <li className={page === '/cocina' ? 'active' : ''}>
+        <a href="#/cocina" onClick={() => setPage('/cocina')}>Cocina</a>
+      </li>
+      <li className={page === '/reporte' ? 'active' : ''}>
+        <a href="#/reporte" onClick={() => setPage('/reporte')}>Reporte</a>
+      </li>
         {
           isLoggedIn ? (
             <li className={page === '/logout' ? 'active' : ''}> 

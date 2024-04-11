@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
+
 const Home = ({ navigate }) => {
   const [students, setStudents] = useState([]);
   const [error, setError] = useState();
@@ -41,7 +42,7 @@ const Home = ({ navigate }) => {
         <button className="btn btn-primary" style={buttonStyle} onClick={() => navigate('/pedidos')}>Pedidos</button>
         <button className="btn btn-secondary" style={buttonStyle} onClick={() => navigate('/cocina')}>Cocina</button>
         <button className="btn btn-success" style={buttonStyle} onClick={() => navigate('/bebidas')}>Bebidas</button>
-        <button className="btn btn-info" style={buttonStyle} onClick={() => navigate('/mostrar-factura')}>Mostrar Factura</button>
+        <button className="btn btn-info" style={buttonStyle} onClick={() => navigate('/Reporte')}>Mostrar Factura</button>
         <button className="btn btn-warning" style={buttonStyle} onClick={() => navigate('/imprimir-factura')}>Imprimir Factura</button>
         <button className="btn btn-danger" style={buttonStyle} onClick={() => navigate('/encuestas')}>Encuestas</button>
         <button className="btn btn-dark" style={buttonStyle} onClick={() => navigate('/logout')}>Cerrar Sesión</button>
