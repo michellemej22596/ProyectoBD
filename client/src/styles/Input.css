@@ -32,7 +32,7 @@
 .eye {
   position: absolute;
   right: 10px;
-  bottom: 30px; /* Ajustado para alinear con el input */
+  bottom: 10px; /* Ajustado para alinear con el input */
   cursor: pointer;
   user-select: none;
 }

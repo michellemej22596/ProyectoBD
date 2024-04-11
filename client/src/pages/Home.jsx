@@ -46,11 +46,6 @@ const Home = ({ navigate }) => {
         <button className="btn btn-danger" style={buttonStyle} onClick={() => navigate('/encuestas')}>Encuestas</button>
         <button className="btn btn-dark" style={buttonStyle} onClick={() => navigate('/logout')}>Cerrar Sesión</button>
       </div>
-      <h1>List of students: </h1>
-      {error ? <h2>{error}</h2> : null}
-      <ul>
-        {students && students.map((student) => <li key={student.id}>{student.name}</li>)}
-      </ul>
     </div>
   );
 };

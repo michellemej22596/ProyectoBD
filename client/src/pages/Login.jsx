@@ -50,7 +50,7 @@ const Login = ({ setToken, navigate }) => {
   return (
     <aside className="login">
       <div className="logo-container">
-        <img src="../images/logo.avif" alt="Logo del Restaurante" className="login-logo" />
+        <img className="login-logo" src="../../public/images/logo.png" alt="Logo del Restaurante" />
       </div>
       <h1 className="title">¡Bienvenido a Winery!</h1>
       <p className="welcome-message">Disfruta de la experiencia culinaria más auténtica.</p>
@@ -62,7 +62,7 @@ const Login = ({ setToken, navigate }) => {
         )
       }
       <Input placeholder="Tu nombre de usuario" label="Usuario" type="text" value={username} onChange={(value) => setValue('username', value)} />
-      <Input label="Contraseña" type="password" value={password} onChange={(value) => setValue('password', value)}/>
+      <Input placeholder="Tu contraseña" label="Contraseña" type="password" value={password} onChange={(value) => setValue('password', value)}/>
       <Button text="Iniciar sesión" onClick={handleSubmit} />
     </aside>
   );

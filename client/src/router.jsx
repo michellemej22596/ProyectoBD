@@ -49,24 +49,23 @@ const Pages = ({ token, setToken }) => {
 
   let CurrentPage = () => <h1>404</h1>
 
-  if (routes[page] && routes[page].requiresAuth && !token) {
-    return <div><h1>Unauthorized</h1><a href='/#/login' onClick={() => setPage('/login')}>Please login</a></div>
-  }
+  //IMPORTANTE PARA EL LOGIN, ESTA COMENTADO PARA HACER PRUEBAS!!!
+  //if (routes[page] && routes[page].requiresAuth && !token) {
+  //  return <div><h1>Unauthorized</h1><a href='/#/login' onClick={() => setPage('/login')}>Please login</a></div>
+  //}
 
   CurrentPage = routes[page].component
 
-  return (
+
+//Agregar paginas dentro de los li
+ 
+return (
     <div>
       <ul style={{ position: 'fixed', top: 0, left: 0, width: '100%', listStyle: 'none', display: 'flex', gap: '5px' }}>
         <li className={page === '/' ? 'active' : ''}> 
           <a href="/" onClick={() => setPage('/home')}>Home</a>
         </li>
-        <li className={page === '/grades' ? 'active' : ''}> 
-          <a href="#/grades" onClick={() => setPage('/grades')}>Grades</a>
-        </li>
-         <li className={page === '/about' ? 'active' : ''}> 
-          <a href="#/about" onClick={() => setPage('/about')}>About</a>
-        </li>
+
         {
           isLoggedIn ? (
             <li className={page === '/logout' ? 'active' : ''}> 
