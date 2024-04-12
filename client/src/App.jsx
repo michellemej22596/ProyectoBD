@@ -1,25 +1,12 @@
-import React from 'react';
-import { useEffect, useState } from 'react'
+// En App.js
+import React, { useState } from 'react';
+import Pages from './pages';
 import './styles/App.css'
-import Login from './pages/Login'
-import Pages from './router'
 
 function App() {
-  const [ token, setToken ] = useState(
-    localStorage.getItem('access_token') || null
-  )
+  const [token, setToken] = useState(null);
 
-  useEffect(() => {
-    if (token) {
-      localStorage.setItem('access_token', token)
-    }
-  }, [token])
-
-  return (
-    <div>
-      <Pages token={token} setToken={setToken} />
-    </div>
-  )
+  return <Pages token={token} setToken={setToken} />;
 }
 
-export default App
+export default App;

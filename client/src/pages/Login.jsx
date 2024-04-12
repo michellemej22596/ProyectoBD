@@ -6,28 +6,27 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import '../styles/Login.css';
 
-const Login = ({ setToken, navigate }) => {
-  const [username, setUsername] = useState();
-  const [password, setPassword] = useState();
+
+import { useNavigate } from 'react-router-dom';
+
+const Login = ({ setToken }) => {
+  const navigate = useNavigate(); // Inicializa el hook useNavigate
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const setValue = (name, value) => {
-    switch(name) {
-      case 'username':
-        setUsername(value);
-        break;
-      case 'password':
-        setPassword(value);
-        break;
-      default:
-        break;
+    if (name === 'username') {
+      setUsername(value);
+    } else if (name === 'password') {
+      setPassword(value);
     }
   };
 
   const handleSubmit = async () => {
     const body = {
-      username: username,
-      password: md5(password)
+      userName: username,
+      passwordHash: md5(password)
     };
     const fetchOptions = {
       method: 'POST',
@@ -36,15 +35,16 @@ const Login = ({ setToken, navigate }) => {
         'Content-Type': 'application/json'
       }
     };
-    const response = await fetch('http://127.0.0.1:5000/login/', fetchOptions);
-    const { access_token } = await response.json();
+    const response = await fetch('http://localhost:3000/auth/login', fetchOptions);
+    const data = await response.json();
     if (response.ok) {
-      console.log('success! token is: ', access_token);
-      setToken(access_token);
-      navigate('/');
+      console.log('Login success! UserID is: ', data.userId);
+      const token = 'simulated-token';  // Ejemplo de token obtenido
+      setToken(token);
+      navigate('/'); // Redirect user to the home page or dashboard
       return;
     }
-    setErrorMessage('Incorrect user or password');
+    setErrorMessage('Credenciales inválidas.');
   };
 
   return (
