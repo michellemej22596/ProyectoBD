@@ -63,10 +63,16 @@ CREATE TABLE Invoice (
 
 CREATE TABLE Payment (
     PaymentID SERIAL PRIMARY KEY,
-    InvoiceID INT NOT NULL,
     Type VARCHAR(255) NOT NULL,
-    Amount FLOAT NOT NULL,
-    FOREIGN KEY (InvoiceID) REFERENCES Invoice(InvoiceID)
+    Amount FLOAT NOT NULL
+);
+
+CREATE TABLE InvoicePayment (
+    InvoicePaymentID SERIAL PRIMARY KEY,
+    InvoiceID INT NOT NULL,
+    PaymentID INT NOT NULL,
+    FOREIGN KEY (InvoiceID) REFERENCES Invoice(InvoiceID),
+    FOREIGN KEY (PaymentID) REFERENCES Payment(PaymentID)
 );
 
 CREATE TABLE Survey (
