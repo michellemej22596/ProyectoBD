@@ -1,5 +1,7 @@
 import pool from './conn.js';
 
+
+//LOGIN
 export async function login(userName, passwordHash) {
   const { rows } = await pool.query('SELECT UserID FROM RestaurantUser WHERE UserName = $1 AND PasswordHash = $2', [userName, passwordHash]);
   if (rows.length === 1) {
@@ -8,6 +10,7 @@ export async function login(userName, passwordHash) {
   return false;
 }
 
+//REGISTER
 export async function register(userName, passwordHash, userType) {
   const { rows } = await pool.query('INSERT INTO RestaurantUser (UserName, PasswordHash, UserType) VALUES ($1, $2, $3) RETURNING *', [userName, passwordHash, userType]);
   return rows[0];
@@ -19,3 +22,32 @@ export async function register(userName, passwordHash, userType) {
   //const { rows } = await pool.query('SELECT Action FROM Actions WHERE UserID = $1', [userID]);
   //return rows.map((row) => row.action);
 //}
+
+//COCINA
+export async function getKitchenOrders() {
+  const query = `
+    SELECT od.Quantity, i.Name, i.Description, ro.DateTime
+    FROM OrderDetail od
+    JOIN Item i ON od.ItemID = i.ItemID
+    JOIN RestaurantOrder ro ON od.OrderID = ro.OrderID
+    WHERE i.ItemType = 'Plate'
+    ORDER BY ro.DateTime ASC
+  `;
+  const { rows } = await pool.query(query);
+  return rows;
+};
+
+//BAR
+export async function getBarOrders () {
+  const query = `
+    SELECT od.Quantity, i.Name, i.Description, ro.DateTime
+    FROM OrderDetail od
+    JOIN Item i ON od.ItemID = i.ItemID
+    JOIN RestaurantOrder ro ON od.OrderID = ro.OrderID
+    WHERE i.ItemType = 'Drink'
+    ORDER BY ro.DateTime ASC
+  `;
+  const { rows } = await pool.query(query);
+  return rows;
+};
+
