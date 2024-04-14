@@ -11,12 +11,12 @@ import {
 
 const router = express.Router();
 
-router.get('/most-ordered-plates', getMostOrderedPlates);
-router.get('/complaints-by-dish', getComplaintsByDish);
-router.get('/average-eating-time', getAverageEatingTime);
-router.get('/peak-order-time', getPeakOrderTime);
-router.get('/complain-by-personnel', getComplaintsByPersonnel);
-router.get('/waiter-efficiency', getWaiterEfficiency);
+router.get('/mostOrderedPlates', getMostOrderedPlates);
+router.get('/complaintsByDish', getComplaintsByDish);
+router.get('/averageEatingTime', getAverageEatingTime);
+router.get('/peakOrderTime', getPeakOrderTime);
+router.get('/complaintsByPersonnel', getComplaintsByPersonnel);
+router.get('/waiterEfficiency', getWaiterEfficiency);
 
 
 export default router;
