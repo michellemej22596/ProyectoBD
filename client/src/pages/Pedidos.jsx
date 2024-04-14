@@ -1,80 +1,103 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Pedidos = () => {
+  // Estados
   const [mesa, setMesa] = useState('');
   const [cuentaAbierta, setCuentaAbierta] = useState(false);
-  const [platos, setPlatos] = useState([]);
-  const [bebidas, setBebidas] = useState([]);
+  const [menu, setMenu] = useState([]);
 
-  const agregarPlato = (plato) => {
-    setPlatos([...platos, plato]);
+  // Efecto para cargar el menú de platos y bebidas
+  useEffect(() => {
+    const cargarMenu = async () => {
+      try {
+        const responsePlates = await fetch('http://localhost:3000/orders/plates');
+        const plates = await responsePlates.json();
+        const responseDrinks = await fetch('http://localhost:3000/orders/drinks');
+        const drinks = await responseDrinks.json();
+        const combinedMenu = [...plates, ...drinks].map(item => ({
+          ...item,
+          cantidad: 0
+        }));
+        setMenu(combinedMenu);
+      } catch (error) {
+        console.error('Error al cargar el menú:', error);
+      }
+    };
+    cargarMenu();
+  }, []);
+
+  // Funciones para manejar eventos
+  const manejarMesa = (e) => setMesa(e.target.value);
+
+  const actualizarCantidad = (index, nuevaCantidad) => {
+    setMenu(menu.map((item, i) => i === index ? { ...item, cantidad: nuevaCantidad } : item));
   };
 
-  const agregarBebida = (bebida) => {
-    setBebidas([...bebidas, bebida]);
+  const incrementarCantidad = (index) => {
+    actualizarCantidad(index, menu[index].cantidad + 1);
   };
 
-  const enviarPedido = () => {
-    // Aquí se puede enviar el pedido a tu backend 
-    console.log(`Pedido para la mesa ${mesa}:`, platos, bebidas);
-  };
-
-  const manejarMesa = (e) => {
-    const numeroMesa = parseInt(e.target.value, 10);
-    if (numeroMesa >= 1) {
-      setMesa(numeroMesa);
-      verificarCuenta(numeroMesa);
-    } else {
-      setMesa('');
+  const decrementarCantidad = (index) => {
+    if (menu[index].cantidad > 0) {
+      actualizarCantidad(index, menu[index].cantidad - 1);
     }
   };
 
-  const buttonStyle = {
-    margin: '10px',
-    width: '200px',
-    height: '50px',
-    backgroundColor: '#78281F',
-    color: 'white'
+  const enviarPedido = () => {
+    //console.log(Pedido para la mesa ${mesa}:, menu.filter(item => item.cantidad > 0));
   };
 
-  const buttonsContainerStyle = {
+  // Estilos
+  const itemStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: '10px',
+  };
+
+  const nombreItemStyle = {
+    marginRight: '10px',
+  };
+
+  const buttonStyle = {
+    cursor: 'pointer',
+    margin: '0 5px',
+    width: '30px',
+    height: '30px',
     display: 'flex',
     justifyContent: 'center',
-    gap: '10px',
-    marginTop: '20px'
+    alignItems: 'center',
+    backgroundColor: '#78281F',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
   };
 
+  // JSX
   return (
     <div>
-      <h1 className="mb-4">Pedidos</h1>
+      <h1>Pedidos</h1>
       <label>
         Número de mesa:
         <input type="number" min="1" value={mesa} onChange={manejarMesa} />
       </label>
-      <br />
-      <label>
-        Agregar plato:
-        <input type="text" onKeyDown={(e) => e.key === 'Enter' && agregarPlato(e.target.value)} />
-      </label>
-      <ul>
-        {platos.map((plato, index) => (
-          <li key={index}>{plato}</li>
-        ))}
-      </ul>
-      <label>
-        Agregar bebida:
-        <input type="text" onKeyDown={(e) => e.key === 'Enter' && agregarBebida(e.target.value)} />
-      </label>
-      <ul>
-        {bebidas.map((bebida, index) => (
-          <li key={index}>{bebida}</li>
-        ))}
-      </ul>
-      <div style={buttonsContainerStyle}>
+      {menu.map((item, index) => (
+        <div key={index} style={itemStyle}>
+          <span style={nombreItemStyle}>{item.name} - {item.description}</span>
+          <div>
+            <button onClick={() => decrementarCantidad(index)} style={buttonStyle}>-</button>
+            <span>{item.cantidad}</span>
+            <button onClick={() => incrementarCantidad(index)} style={buttonStyle}>+</button>
+          </div>
+        </div>
+      ))}
+      <div>
         {!cuentaAbierta && mesa && (
-          <button style={buttonStyle} onClick={() => abrirCuenta(mesa)}>Abrir cuenta</button>
+          <button onClick={() => setCuentaAbierta(true)} style={buttonStyle}>Abrir cuenta</button>
         )}
-        <button style={buttonStyle} onClick={enviarPedido}>Enviar Pedido</button>
+        {cuentaAbierta && (
+          <button onClick={enviarPedido} style={buttonStyle}>Enviar Pedido</button>
+        )}
       </div>
     </div>
   );

@@ -1,51 +1,77 @@
 import React, { useState, useEffect } from 'react';
 
 const Cocina = () => {
-  const [pedidos, setPedidos] = useState([]);
+  const [pedidosCocina, setPedidosCocina] = useState([]);
+
+  const cargarPedidosCocina = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/orders/kitchen');
+      if (response.ok) {
+        const pedidos = await response.json();
+        // Agregar estado de finalizado a cada pedido
+        const pedidosConEstado = pedidos.map(pedido => ({ ...pedido, finalizado: false }));
+        setPedidosCocina(pedidosConEstado);
+      } else {
+        throw new Error('Failed to fetch orders');
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
+  };
 
   useEffect(() => {
-    // Aquí iría la llamada a la API para cargar los pedidos desde tu backend
-    // La he comentado para que puedas ver el diseño con los pedidos de ejemplo
-    /*
-    const cargarPedidos = async () => {
-      try {
-        const respuesta = await fetch('https://tu-api.com/pedidos');
-        const pedidosCargados = await respuesta.json();
-        setPedidos(pedidosCargados);
-      } catch (error) {
-        console.error('Error al cargar los pedidos:', error);
-      }
-    };
-
-    cargarPedidos();
-    */
-
-    // Pedidos de ejemplo para ver el diseño
-    const pedidosEjemplo = [
-      { id: 1, hora: '10:00', platos: ['Plato 1', 'Plato 2'] },
-      { id: 2, hora: '10:30', platos: ['Plato 3'] },
-      { id: 3, hora: '11:00', platos: ['Plato 4', 'Plato 5', 'Plato 6'] }
-    ];
-    setPedidos(pedidosEjemplo);
+    cargarPedidosCocina();
   }, []);
+
+  const marcarComoFinalizado = (index) => {
+    const nuevosPedidos = [...pedidosCocina];
+    nuevosPedidos[index].finalizado = true; // Marcar el pedido como finalizado
+    setPedidosCocina(nuevosPedidos);
+  };
+
+  const buttonStyle = {
+    margin: '10px',
+    width: '220px', 
+    height: '50px',
+    backgroundColor: '#78281F',
+    color: 'white',
+    fontSize: '14px', 
+    textAlign: 'center', 
+    padding: '10px 0', 
+    border: 'none', 
+    borderRadius: '5px', 
+    cursor: 'pointer' 
+  };
+
+  const buttonsContainerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '10px',
+    marginTop: '20px'
+  };
 
   return (
     <div>
-       <h1 className="mb-4">Cocina</h1>
-      <ul>
-        {pedidos.map((pedido) => (
-          <li key={pedido.id}>
-            <strong>Hora: {pedido.hora}</strong>
-            <ul>
-              {pedido.platos.map((plato, index) => (
-                <li key={index}>{plato}</li>
-              ))}
-            </ul>
-          </li>
+      <h1 className="mb-4">Pedidos para Cocina</h1>
+      <div style={buttonsContainerStyle}>
+        {pedidosCocina.map((pedido, index) => (
+          <div key={index} style={{ marginBottom: '10px' }}>
+            <p><strong>{pedido.name}</strong> (x{pedido.quantity})</p>
+            <p>{pedido.description}</p>
+            <p>Fecha y Hora: {new Date(pedido.datetime).toLocaleString()}</p>
+            {!pedido.finalizado && (
+              <button style={buttonStyle} onClick={() => marcarComoFinalizado(index)}>
+                Marcar como finalizado
+              </button>
+            )}
+            {pedido.finalizado && <p>Pedido finalizado</p>}
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };
 
 export default Cocina;
+

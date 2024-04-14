@@ -1,12 +1,21 @@
 import express from 'express';
-import { createOrder, printOrder, closeOrder, kitchenDisplay, barDisplay } from '../controllers/orderController.js';
+import {printOrder, closeOrder, kitchenDisplay, barDisplay, getDrinks, getPlates, takeOrder, getOrderDetailsByTable, updateOrderToPrepared } from '../controllers/orderController.js';
 
 const router = express.Router();
 
-router.post('/create', createOrder);
 router.get('/print/:orderId', printOrder);
 router.post('/close', closeOrder);
 router.get('/kitchen', kitchenDisplay);
 router.get('/bar', barDisplay);
+router.get('/plates', getPlates);
+router.get('/drinks', getDrinks);
+router.patch('/order/:orderId/status', closeOrder);
+router.post('/takeOrder', takeOrder);
+router.get('/printOrder/:orderId', printOrder);
+router.get('/table/:tableNumber', getOrderDetailsByTable);
+router.patch('/order/:orderId/prepared', updateOrderToPrepared);
+
+
+
 
 export default router;

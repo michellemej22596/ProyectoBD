@@ -26,30 +26,155 @@ export async function register(userName, passwordHash, userType) {
 //COCINA
 export async function getKitchenOrders() {
   const query = `
-    SELECT od.Quantity, i.Name, i.Description, ro.DateTime
+    SELECT od.Quantity, i.Name, i.Description, ro.DateTime, ro.orderid
     FROM OrderDetail od
     JOIN Item i ON od.ItemID = i.ItemID
     JOIN RestaurantOrder ro ON od.OrderID = ro.OrderID
-    WHERE i.ItemType = 'Plate'
+    WHERE i.ItemType = 'Plate' AND ro.Status = 'Open'
     ORDER BY ro.DateTime ASC
   `;
   const { rows } = await pool.query(query);
   return rows;
 };
 
+//PARA IMPRIMIR PEDIDOS
+export async function fetchOrderDetails(orderId) {
+  const query = `
+    SELECT i.Name, i.Description, SUM(od.Quantity) AS Quantity, i.Price, SUM(od.Quantity * i.Price) AS TotalItemPrice
+    FROM OrderDetail od
+    JOIN Item i ON od.ItemID = i.ItemID
+    WHERE od.OrderID = $1
+    GROUP BY i.Name, i.Description, i.Price
+    ORDER BY i.Name;
+  `;
+  const { rows } = await pool.query(query, [orderId]);
+  return rows;
+}
+
+//MOSTRAR PLATILLOS
+export async function fetchPlates() {
+  const query = `
+    SELECT Name, Price
+    FROM Item
+    WHERE ItemType = 'Plate';
+  `;
+  const { rows } = await pool.query(query);
+  return rows;
+}
+
+//MOSTRAR BEBIDAS 
+export async function fetchDrinks() {
+  const query = `
+    SELECT Name, Price
+    FROM Item
+    WHERE ItemType = 'Drink'; 
+  `;
+  const { rows } = await pool.query(query);
+  return rows;
+}
+
 //BAR
 export async function getBarOrders () {
   const query = `
-    SELECT od.Quantity, i.Name, i.Description, ro.DateTime
+    SELECT od.Quantity, i.Name, i.Description, ro.DateTime, od.orderid
     FROM OrderDetail od
     JOIN Item i ON od.ItemID = i.ItemID
     JOIN RestaurantOrder ro ON od.OrderID = ro.OrderID
-    WHERE i.ItemType = 'Drink'
+    WHERE i.ItemType = 'Drink' AND ro.Status = 'Open'
     ORDER BY ro.DateTime ASC
   `;
   const { rows } = await pool.query(query);
   return rows;
 };
+
+
+//Marcar como listo 
+export async function updateOrderStatus(orderId, newStatus) {
+  const query = `
+    UPDATE RestaurantOrder
+    SET Status = $1
+    WHERE OrderID = $2
+    RETURNING *;  
+  `;
+  const { rows } = await pool.query(query, [newStatus, orderId]);
+  return rows[0]; 
+}
+
+//Verificar si no esta abierta la cuenta
+export async function findOpenOrderForTable(tableId) {
+  const result = await pool.query(
+    `SELECT OrderID FROM RestaurantOrder WHERE TableID = $1 AND Status = 'Open' LIMIT 1`,
+    [tableId]
+  );
+  return result.rows[0]?.orderid; // Devuelve undefined si no hay ninguna orden abierta
+};
+
+//Crear nueva orden 
+export async function createNewOrder(tableId, userId) {
+  const result = await pool.query(
+    `INSERT INTO RestaurantOrder (TableID, UserID, DateTime, Status) VALUES ($1, $2, NOW(), 'Open') RETURNING OrderID`,
+    [tableId, userId]
+  );
+  return result.rows[0].orderid;
+};
+
+// Insertar detalles de la orden
+export async function insertOrderDetails(orderId, items){
+  const placeholders = items.map((_, i) => `($1, $${i * 2 + 2}, $${i * 2 + 3})`).join(',');
+  const values = [orderId].concat(...items.map(item => [item.itemId, item.quantity]));
+  
+  await pool.query(
+    `INSERT INTO OrderDetail (OrderID, ItemID, Quantity) VALUES ${placeholders}`,
+    values
+  );
+
+  // Calcular el total de la orden para la propina
+  const totalResult = await pool.query(
+    `SELECT SUM(i.Price * od.Quantity) AS Total FROM OrderDetail od JOIN Item i ON od.ItemID = i.ItemID WHERE od.OrderID = $1`,
+    [orderId]
+  );
+  const total = totalResult.rows[0].total;
+  const tip = total * 0.10; // 10% de propina
+console.log(`Calculating tip: ${tip} for order ${orderId}`);
+
+// Actualizar la orden con la propina calculada
+await pool.query(
+  `UPDATE RestaurantOrder SET Tip = $1 WHERE OrderID = $2`,
+  [tip, orderId]
+);
+};
+
+//Encontrar pedido por mesa
+export async function findOrderByTable(tableNumber) {
+  
+  const query = `
+  SELECT ro.OrderID, ro.DateTime
+  FROM RestaurantOrder ro
+  JOIN RestaurantTable rt ON ro.TableID = rt.TableID
+  WHERE rt.TableID = $1
+  ORDER BY ro.DateTime DESC
+  LIMIT 1;
+  
+  `;
+  const { rows } = await pool.query(query, [tableNumber]);
+  console.log("Table number received:", tableNumber);
+
+  console.log("Order found:", rows[0]);
+return rows.length ? rows[0] : null;
+}
+
+//Actualizar una orden a preparada 
+
+export async function markOrderAsPrepared(orderId) {
+  const query = `
+    UPDATE RestaurantOrder
+    SET Status = 'Prepared'
+    WHERE OrderID = $1;
+  `;
+  await pool.query(query, [orderId]);
+}
+
+
 
 //REPORTES
 

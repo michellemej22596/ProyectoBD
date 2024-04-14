@@ -1,67 +1,106 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-const ReportePedido = () => {
-  const [pedido, setPedido] = useState(null);
+const Reporte = () => {
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [reports, setReports] = useState({
+    mostOrderedPlates: [],
+    peakOrderTime: [],
+    averageEatingTime: [],
+    complaintsByPersonnel: [],
+    complaintsByDish: [],
+    waiterEfficiency: []
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    // Aquí iría la llamada a la API para cargar los datos del pedido
-    // Comentado para usar datos de ejemplo
-    /*
-    const cargarPedido = async () => {
-      try {
-        const respuesta = await fetch('https://tu-api.com/pedido');
-        const pedidoCargado = await respuesta.json();
-        setPedido(pedidoCargado);
-      } catch (error) {
-        console.error('Error al cargar el pedido:', error);
-      }
-    };
-
-    cargarPedido();
-    */
-
-    // Datos de ejemplo para ver el diseño
-    const pedidoEjemplo = {
-      mesa: 5,
-      platos: ['Plato 1', 'Plato 2', 'Plato 3'],
-      bebidas: ['Bebida 1', 'Bebida 2']
-    };
-    setPedido(pedidoEjemplo);
-  }, []);
-
-  const buttonStyle = {
-    margin: '10px',
-    width: '200px',
-    height: '50px',
-    backgroundColor: '#78281F',
-    color: 'white'
+  const fetchReportData = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const urls = [
+        `/report/mostOrderedPlates?startDate=${startDate}&endDate=${endDate}`,
+        `/report//peakOrderTime?startDate=${startDate}&endDate=${endDate}`,
+        `/report/averageEatingTime?startDate=${startDate}&endDate=${endDate}`,
+        `/report/complaintsByPersonnel?startDate=${startDate}&endDate=${endDate}`,
+        `/report/complaintsByDish?startDate=${startDate}&endDate=${endDate}`,
+        `/report/waiterEfficiency?startDate=${startDate}&endDate=${endDate}`
+      ];  
+      const responses = await Promise.all(urls.map(url => fetch(url)));
+      const data = await Promise.all(responses.map(res => res.json()));
+      setReports({
+        mostOrderedPlates: data[0],
+        peakOrderTime: data[1],
+        averageEatingTime: data[2],
+        complaintsByPersonnel: data[3],
+        complaintsByDish: data[4],
+        waiterEfficiency: data[5]
+      });
+    } catch (error) {
+      console.error('Error fetching report data:', error);
+      setError('Failed to fetch data');
+    }
+    setLoading(false);
   };
-
-  if (!pedido) {
-    return <div>Cargando pedido...</div>;
-  }
 
   return (
     <div>
-       <h1 className="mb-4">Reporte del pedido</h1>
-      <p><strong>Mesa:</strong> {pedido.mesa}</p>
-      <h3>Platos:</h3>
-      <ul>
-        {pedido.platos.map((plato, index) => (
-          <li key={index}>{plato}</li>
-        ))}
-      </ul>
-      <h3>Bebidas:</h3>
-      <ul>
-        {pedido.bebidas.map((bebida, index) => (
-          <li key={index}>{bebida}</li>
-        ))}
-      </ul>
-      {/* Aquí puedes agregar botones o acciones adicionales según necesites */}
-      <button style={buttonStyle}>Revisar cuenta</button>
-      <button style={buttonStyle}>Cerrar cuenta</button>
+      <h1>Reportes</h1>
+      <div>
+        <label>
+          Fecha de inicio:
+          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+        </label>
+        <label>
+          Fecha de fin:
+          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+        </label>
+        <button onClick={fetchReportData} disabled={!startDate || !endDate}>Generar Reportes</button>
+      </div>
+      {loading && <p>Loading...</p>}
+      {error && <p>Error: {error}</p>}
+      {!loading && !error && (
+        <div>
+          <h2>Platos más pedidos</h2>
+          <ul>
+            {reports.mostOrderedPlates.map((plate, index) => (
+              <li key={index}>{plate.Name}: {plate.TotalOrders}</li>
+            ))}
+          </ul>
+          <h2>Horario con más pedidos</h2>
+          <ul>
+            {reports.peakOrderTime.map((time, index) => (
+              <li key={index}>{time.Hour}: {time.TotalOrders}</li>
+            ))}
+          </ul>
+          <h2>Promedio de tiempo de comida por cantidad de comensales</h2>
+          <ul>
+            {reports.averageEatingTime.map((time, index) => (
+              <li key={index}>{time.Capacity} personas: {time.AverageMinutes} minutos</li>
+            ))}
+          </ul>
+          <h2>Quejas agrupadas por personal</h2>
+          <ul>
+            {reports.complaintsByPersonnel.map((complaint, index) => (
+              <li key={index}>{complaint.Personnel}: {complaint.TotalComplaints}</li>
+            ))}
+          </ul>
+          <h2>Quejas agrupadas por plato</h2>
+          <ul>
+            {reports.complaintsByDish.map((dish, index) => (
+              <li key={index}>{dish.Name}: {dish.TotalComplaints}</li>
+            ))}
+          </ul>
+          <h2>Eficiencia de los meseros</h2>
+          <ul>
+            {reports.waiterEfficiency.map((efficiency, index) => (
+              <li key={index}>{efficiency.UserName} ({efficiency.Month}): {efficiency.AverageRating}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };
 
-export default ReportePedido;
+export default Reporte;

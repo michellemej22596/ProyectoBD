@@ -1,4 +1,9 @@
-import { fetchMostOrderedPlates, fetchAverageEatingTime, fetchPeakOrderTime, fetchComplaintsByDish, fetchComplaintsByPersonnel, fetchWaiterEfficiency} from '../database/db.js'; 
+import { fetchMostOrderedPlates, 
+  fetchAverageEatingTime,
+   fetchPeakOrderTime, 
+   fetchComplaintsByDish, 
+   fetchComplaintsByPersonnel,
+    fetchWaiterEfficiency} from '../database/db.js'; 
 
 export async function getMostOrderedPlates(req, res){
     const { startDate, endDate } = req.query;
