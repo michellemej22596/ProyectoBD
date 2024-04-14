@@ -1,7 +1,18 @@
-CREATE USER IF NOT EXISTS 'michimejia'@'%' IDENTIFIED BY 'password';
-GRANT ALL PRIVILEGES ON restaurantDB* TO 'michimejia'@'%' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'michimejia') THEN
+        CREATE ROLE michimejia WITH LOGIN PASSWORD 'password';
+    END IF;
+END
+$$;
 
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'silvia') THEN
+        CREATE ROLE silvia WITH LOGIN PASSWORD 'password';
+    END IF;
+END
+$$;
 CREATE TABLE RestaurantUser (
     UserID SERIAL PRIMARY KEY,
     UserName VARCHAR(255) NOT NULL,
@@ -94,8 +105,18 @@ CREATE TABLE Complaint (
     FOREIGN KEY (ItemID) REFERENCES Item(ItemID)
 );
 
+CREATE TABLE OrderActivityLog (
+    LogID SERIAL PRIMARY KEY,
+    OrderID INT,
+    ActionType VARCHAR(255),
+    ActionTimestamp TIMESTAMP,
+    UserID INT,
+    FOREIGN KEY (OrderID) REFERENCES RestaurantOrder(OrderID),
+    FOREIGN KEY (UserID) REFERENCES RestaurantUser(UserID)
+);
+
 -- Índice para la tabla Order en las columnas TableID y UserID
-CREATE INDEX idx_order_tableid_userid on RestaurantOrder(TableID, UserID);
+CREATE INDEX idx_order_tableid_userid ON RestaurantOrder(TableID, UserID);
 
 -- Índice para la tabla OrderDetail en las columnas OrderID y ItemID
 CREATE INDEX idx_orderdetail_orderid_itemid ON OrderDetail(OrderID, ItemID);
@@ -103,8 +124,8 @@ CREATE INDEX idx_orderdetail_orderid_itemid ON OrderDetail(OrderID, ItemID);
 -- Índice para la tabla Invoice en la columna OrderID
 CREATE INDEX idx_invoice_orderid ON Invoice(OrderID);
 
--- Índice para la tabla Payment en la columna InvoiceID
-CREATE INDEX idx_payment_invoiceid ON Payment(InvoiceID);
+-- Índice para la tabla InvoicePayment en la columna InvoiceID
+CREATE INDEX idx_payment_invoiceid ON InvoicePayment(InvoiceID);
 
 
 -- Actualización de Estado de Mesa
@@ -140,3 +161,20 @@ CREATE TRIGGER trigger_log_order_activity
 AFTER INSERT OR UPDATE OR DELETE ON RestaurantOrder
 FOR EACH ROW
 EXECUTE FUNCTION log_order_activity();
+
+-- Función para registrar la actividad de creación de un pedido
+CREATE OR REPLACE FUNCTION log_creation_activity()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Inserta un registro en OrderActivityLog con la información del pedido creado
+    INSERT INTO OrderActivityLog (OrderID, ActionType, ActionTimestamp, UserID)
+    VALUES (NEW.OrderID, 'CREATED', CURRENT_TIMESTAMP, NEW.UserID);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger que se activa después de insertar un nuevo pedido en RestaurantOrder
+CREATE TRIGGER trigger_log_creation_activity
+AFTER INSERT ON RestaurantOrder
+FOR EACH ROW
+EXECUTE FUNCTION log_creation_activity();
