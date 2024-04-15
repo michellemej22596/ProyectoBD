@@ -14,3 +14,17 @@
   background-color: #8d4e2b; /* Oscurecer el botón al pasar el mouse */
   box-shadow: 0 2px 4px rgba(0,0,0,0.25), 0 3px 6px rgba(0,0,0,0.22); /* Sombra más pronunciada */
 }
+
+.custom-button {
+  margin: 10px;
+  width: 220px;
+  height: 50px;
+  background-color: #78281F;
+  color: white;
+  font-size: 14px;
+  text-align: center;
+  padding: 10px 0;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}

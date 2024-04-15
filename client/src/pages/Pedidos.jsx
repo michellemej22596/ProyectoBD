@@ -1,3 +1,6 @@
+import './Button.css';
+import './App.css';
+import './Input.css';
 import React, { useState, useEffect } from 'react';
 
 function Pedidos() {
@@ -84,39 +87,50 @@ function Pedidos() {
   };
 
   return (
-    <div>
-      <h1>Take Order</h1>
-      <input
-        type="text"
-        value={tableId}
-        onChange={(e) => setTableId(e.target.value)}
-        placeholder="Enter table ID"
-      />
-      {plates.map((plate, index) => (
-        <div key={plate.itemid}>
-          <span>{plate.name}</span>
+      <div className="pedido-container">
+        <h1 className="pedido-title">Take Order</h1>
+        <div className="pedido-input-group">
           <input
-            type="number"
-            min="1"
-            placeholder="Quantity"
-            onChange={(e) => handleAddItem({ ...plate, quantity: e.target.value }, 'plate')}
+            className="custom-input" // Input.css
+            type="text"
+            value={tableId}
+            onChange={(e) => setTableId(e.target.value)}
+            placeholder="Enter table ID"
           />
         </div>
-      ))}
-      {drinks.map((drink, index) => (
-        <div key={drink.itemid}>
-          <span>{drink.name}</span>
-          <input
-            type="number"
-            min="1"
-            placeholder="Quantity"
-            onChange={(e) => handleAddItem({ ...drink, quantity: e.target.value }, 'drink')}
-          />
-        </div>
-      ))}
-      <button onClick={handleSubmitOrder}>Submit Order</button>
-    </div>
-  );
-}
+        {plates.map((plate) => (
+          <div key={plate.itemid} className="pedido-item">
+            <span>{plate.name}</span>
+            <input
+              className="custom-input" // Usando la misma clase para mantener el estilo
+              type="number"
+              min="1"
+              placeholder="Quantity"
+              onChange={(e) => handleAddItem({ ...plate, quantity: e.target.value }, 'plate')}
+            />
+          </div>
+        ))}
+        {drinks.map((drink) => (
+          <div key={drink.itemid} className="pedido-item">
+            <span>{drink.name}</span>
+            <input
+              className="custom-input" // Usando la misma clase para mantener el estilo
+              type="number"
+              min="1"
+              placeholder="Quantity"
+              onChange={(e) => handleAddItem({ ...drink, quantity: e.target.value }, 'drink')}
+            />
+          </div>
+        ))}
+        <button
+          className="custom-button" // Button.css
+          onClick={handleSubmitOrder}
+        >
+          Submit Order
+        </button>
+      </div>
+    );
+  }
+  
 
 export default Pedidos;

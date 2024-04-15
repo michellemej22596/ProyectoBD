@@ -15,3 +15,15 @@
 .active {
   border-bottom: 1px solid #a85a32; /* Color ajustado para coherencia */
 }
+
+.pedido-container {
+  padding: 1em;
+}
+
+.pedido-title {
+  margin-bottom: 1em;
+}
+
+.pedido-input-group {
+  margin-bottom: 1em;
+}
