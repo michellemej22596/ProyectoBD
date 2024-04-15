@@ -39,24 +39,6 @@ export async function takeOrder(req, res) {
 };
 
   
-  
-  export async function closeOrder(req, res) {
-    const { orderId } = req.params;  
-    const { status } = req.body; 
-  
-    try {
-      const updatedOrder = await updateOrderStatus(orderId, status);
-      if (updatedOrder) {
-        res.json({ success: true, message: 'Order status updated successfully', order: updatedOrder });
-      } else {
-        res.status(404).json({ success: false, message: 'Order not found' });
-      }
-    } catch (error) {
-      console.error('Error updating order status:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  }
-  
   // Mostrar pedidos en la cocina
   export async function kitchenDisplay(req, res) {
     try {
@@ -193,4 +175,20 @@ export async function takeOrder(req, res) {
     }
   }
 
+  // Función para cerrar una orden y establecer el EndTime
+export async function closeOrder(req, res) {
+  const { orderId } = req.params;  
+
+  try {
+    const updatedOrder = await updateOrderStatus(orderId, 'Closed');
+    if (updatedOrder) {
+      res.json({ success: true, message: 'Order status updated and end time set successfully', order: updatedOrder });
+    } else {
+      res.status(404).json({ success: false, message: 'Order not found' });
+    }
+  } catch (error) {
+    console.error('Error updating order status and setting end time:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
   

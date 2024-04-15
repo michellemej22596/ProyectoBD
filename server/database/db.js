@@ -90,17 +90,17 @@ export async function getBarOrders () {
 };
 
 
-//Marcar como listo 
+// Actualiza el estado de la orden y establece el EndTime
 export async function updateOrderStatus(orderId, newStatus) {
   const query = `
     UPDATE RestaurantOrder
-    SET Status = $1
+    SET Status = $1, EndTime = NOW()
     WHERE OrderID = $2
     RETURNING *;  
   `;
   const { rows } = await pool.query(query, [newStatus, orderId]);
   return rows[0]; 
-}
+  }
 
 //Verificar si no esta abierta la cuenta
 export async function findOpenOrderForTable(tableId) {
@@ -203,12 +203,12 @@ export async function fetchPeakOrderTime(startDate, endDate) {
 //PROMEDIO DE TIEMPO EN COMER
 export async function fetchAverageEatingTime(startDate, endDate) {
   const query = `
-    SELECT rt.Capacity, AVG(EXTRACT(EPOCH FROM (ro.EndTime - ro.DateTime))/60) AS AverageMinutes
-    FROM RestaurantOrder ro
-    JOIN RestaurantTable rt ON ro.TableID = rt.TableID
-    WHERE ro.DateTime BETWEEN $1 AND $2
-    GROUP BY rt.Capacity
-    ORDER BY rt.Capacity;
+  SELECT rt.Capacity, AVG(EXTRACT(EPOCH FROM (ro.EndTime - ro.DateTime))/60) AS AverageMinutes
+  FROM RestaurantOrder ro
+  JOIN RestaurantTable rt ON ro.TableID = rt.TableID
+  WHERE ro.DateTime BETWEEN $1 AND $2 AND ro.EndTime IS NOT NULL
+  GROUP BY rt.Capacity
+  ORDER BY rt.Capacity;
   `;
   const { rows } = await pool.query(query, [startDate, endDate]);
   return rows;

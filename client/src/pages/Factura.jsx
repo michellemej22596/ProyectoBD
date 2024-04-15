@@ -32,31 +32,31 @@ function Factura() {
   const generatePdf = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
-    let yPosition = 50;
+    let yPosition = 45;
   
     // Imagen del logotipo de Winery
-    doc.addImage('../../public/images/Logo.png', 'PNG', 10, 10, 40, 20); // ajusta las dimensiones según sea necesario
+    doc.addImage('../../public/images/Logo.png', 'PNG', 5, 10, 40, 20); // ajusta las dimensiones según sea necesario
     doc.setFontSize(12);
-    doc.text(`Detalles de la Factura para la Mesa: ${tableNumber}`, 10, yPosition);
+    doc.text(`Detalles de la Factura para la Mesa: ${tableNumber}`, 5, yPosition);
     yPosition += 10;
-    doc.text(`Nombre del Cliente: ${customerName}`, 10, yPosition);
+    doc.text(`Nombre del Cliente: ${customerName}`, 5, yPosition);
     yPosition += 10;
-    doc.text(`NIT: ${customerNit}`, 10, yPosition);
+    doc.text(`NIT: ${customerNit}`, 5, yPosition);
     yPosition += 10;
-    doc.text(`Dirección: ${customerAddress}`, 10, yPosition);
+    doc.text(`Dirección: ${customerAddress}`, 5, yPosition);
     yPosition += 10;
   
     let totalAmount = 0;
   
     orderDetails.forEach((item, index) => {
       const itemText = `${item.name} - ${item.quantity} unidades - Descripción: ${item.description} - Precio Total: $${item.totalitemprice}`;
-      doc.text(itemText, 10, yPosition); // Alinear a la izquierda
+      doc.text(itemText, 5, yPosition); // Alinear a la izquierda
       yPosition += 10;
       totalAmount += parseFloat(item.totalitemprice);
     });
   
     // Mostrar el total de la factura
-    doc.text(`Total: $${totalAmount.toFixed(2)}`, 10, yPosition);
+    doc.text(`Total: $${totalAmount.toFixed(2)}`, 5, yPosition);
     yPosition += 10;
   
     doc.save(`Factura_Mesa_${tableNumber}.pdf`);
