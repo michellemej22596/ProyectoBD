@@ -19,23 +19,25 @@ export async function takeOrder(req, res) {
   const { tableId, userId, items } = req.body; // items debe ser un array de objetos { itemId, quantity }
 
   try {
-    // Verificar si existe una orden abierta para la mesa
+    console.log(`Buscando orden abierta para la mesa: ${tableId}`);
     let orderId = await findOpenOrderForTable(tableId);
 
-    // Si no hay una orden abierta, crea una nueva
     if (!orderId) {
+      console.log(`No hay orden abierta para la mesa: ${tableId}, creando nueva`);
       orderId = await createNewOrder(tableId, userId);
     }
 
-    // Agregar detalles de orden
+    console.log(`Agregando items a la orden ${orderId}`);
     await insertOrderDetails(orderId, items);
 
+    console.log(`Orden ${orderId} tomada correctamente`);
     res.status(200).json({ success: true, message: 'Order taken successfully', orderId });
   } catch (error) {
     console.error('Error taking order:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error', message: error.message });
   }
 };
+
   
   
   export async function closeOrder(req, res) {
@@ -171,5 +173,24 @@ export async function takeOrder(req, res) {
     }
   }
   
+
+  export async function closeAccountByTable(req, res) {
+    const { tableNumber } = req.params;
+  
+    try {
+      // Aquí asumimos que tienes una forma de obtener el ID de la orden abierta basado en el número de mesa
+      const orderId = await getOpenOrderIdByTableNumber(tableNumber);
+      
+      if (!orderId) {
+        return res.status(404).json({ message: 'No se encontró una cuenta abierta para esta mesa.' });
+      }
+  
+      const result = await closeOrder(orderId);
+      res.status(200).json({ success: true, message: 'Cuenta cerrada correctamente', order: result });
+    } catch (error) {
+      console.error('Error al cerrar cuenta:', error);
+      res.status(500).json({ error: 'Error del servidor interno' });
+    }
+  }
 
   

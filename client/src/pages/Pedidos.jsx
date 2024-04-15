@@ -1,106 +1,122 @@
 import React, { useState, useEffect } from 'react';
 
-const Pedidos = () => {
-  // Estados
-  const [mesa, setMesa] = useState('');
-  const [cuentaAbierta, setCuentaAbierta] = useState(false);
-  const [menu, setMenu] = useState([]);
+function Pedidos() {
+  const [tableId, setTableId] = useState('');
+  const [plates, setPlates] = useState([]);
+  const [drinks, setDrinks] = useState([]);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [userId, setUserId] = useState(null);
 
-  // Efecto para cargar el menú de platos y bebidas
+  // Cargar el userID desde el almacenamiento local al cargar el componente
   useEffect(() => {
-    const cargarMenu = async () => {
-      try {
-        const responsePlates = await fetch('http://localhost:3000/orders/plates');
-        const plates = await responsePlates.json();
-        const responseDrinks = await fetch('http://localhost:3000/orders/drinks');
-        const drinks = await responseDrinks.json();
-        const combinedMenu = [...plates, ...drinks].map(item => ({
-          ...item,
-          cantidad: 0
-        }));
-        setMenu(combinedMenu);
-      } catch (error) {
-        console.error('Error al cargar el menú:', error);
-      }
-    };
-    cargarMenu();
+    const storedUserId = localStorage.getItem('access_token');
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
   }, []);
 
-  // Funciones para manejar eventos
-  const manejarMesa = (e) => setMesa(e.target.value);
+  // Cargar menú de platos
+  useEffect(() => {
+    fetch('http://localhost:3000/orders/plates')
+      .then((response) => response.json())
+      .then(setPlates)
+      .catch((error) => console.error('Error fetching plates:', error));
+  }, []);
 
-  const actualizarCantidad = (index, nuevaCantidad) => {
-    setMenu(menu.map((item, i) => i === index ? { ...item, cantidad: nuevaCantidad } : item));
-  };
+  // Cargar menú de bebidas
+  useEffect(() => {
+    fetch('http://localhost:3000/orders/drinks')
+      .then((response) => response.json())
+      .then(setDrinks)
+      .catch((error) => console.error('Error fetching drinks:', error));
+  }, []);
 
-  const incrementarCantidad = (index) => {
-    actualizarCantidad(index, menu[index].cantidad + 1);
-  };
-
-  const decrementarCantidad = (index) => {
-    if (menu[index].cantidad > 0) {
-      actualizarCantidad(index, menu[index].cantidad - 1);
+  // Función para manejar la adición de un ítem al pedido
+  const handleAddItem = (item, type) => {
+    const quantity = parseInt(item.quantity) || 0;
+    if (quantity > 0) {
+      const newItem = {
+        itemId: item.itemid, // asegúrate de que es 'itemid' y que esta propiedad está presente en el objeto 'item'
+        quantity,
+        type
+      };
+      setSelectedItems([...selectedItems, newItem]);
     }
   };
 
-  const enviarPedido = () => {
-    //console.log(Pedido para la mesa ${mesa}:, menu.filter(item => item.cantidad > 0));
+  // Función para enviar el pedido
+  const handleSubmitOrder = async () => {
+    if (!tableId || selectedItems.length === 0 || !userId) {
+      alert('Please make sure all fields are filled correctly.');
+      return;
+    }
+
+    const orderData = {
+      tableId: parseInt(tableId),
+      userId: parseInt(userId),
+      items: selectedItems.map(item => ({
+        itemId: parseInt(item.itemId), // asegúrate de que es 'itemId' y que coincide con lo que has utilizado arriba
+        quantity: parseInt(item.quantity)
+      }))
+    };
+
+    try {
+      const response = await fetch('http://localhost:3000/orders/takeOrder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert('Order has been successfully taken!');
+        setSelectedItems([]); // Limpiar los ítems seleccionados tras enviar el pedido
+        // Otras acciones después del éxito
+      } else {
+        throw new Error(result.error || 'An error occurred while submitting the order.');
+      }
+    } catch (error) {
+      console.error('Error taking order:', error);
+      alert(`Error taking order: ${error.message}`);
+    }
   };
 
-  // Estilos
-  const itemStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: '10px',
-  };
-
-  const nombreItemStyle = {
-    marginRight: '10px',
-  };
-
-  const buttonStyle = {
-    cursor: 'pointer',
-    margin: '0 5px',
-    width: '30px',
-    height: '30px',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#78281F',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-  };
-
-  // JSX
   return (
     <div>
-      <h1>Pedidos</h1>
-      <label>
-        Número de mesa:
-        <input type="number" min="1" value={mesa} onChange={manejarMesa} />
-      </label>
-      {menu.map((item, index) => (
-        <div key={index} style={itemStyle}>
-          <span style={nombreItemStyle}>{item.name} - {item.description}</span>
-          <div>
-            <button onClick={() => decrementarCantidad(index)} style={buttonStyle}>-</button>
-            <span>{item.cantidad}</span>
-            <button onClick={() => incrementarCantidad(index)} style={buttonStyle}>+</button>
-          </div>
+      <h1>Take Order</h1>
+      <input
+        type="text"
+        value={tableId}
+        onChange={(e) => setTableId(e.target.value)}
+        placeholder="Enter table ID"
+      />
+      {plates.map((plate, index) => (
+        <div key={plate.itemid}>
+          <span>{plate.name}</span>
+          <input
+            type="number"
+            min="1"
+            placeholder="Quantity"
+            onChange={(e) => handleAddItem({ ...plate, quantity: e.target.value }, 'plate')}
+          />
         </div>
       ))}
-      <div>
-        {!cuentaAbierta && mesa && (
-          <button onClick={() => setCuentaAbierta(true)} style={buttonStyle}>Abrir cuenta</button>
-        )}
-        {cuentaAbierta && (
-          <button onClick={enviarPedido} style={buttonStyle}>Enviar Pedido</button>
-        )}
-      </div>
+      {drinks.map((drink, index) => (
+        <div key={drink.itemid}>
+          <span>{drink.name}</span>
+          <input
+            type="number"
+            min="1"
+            placeholder="Quantity"
+            onChange={(e) => handleAddItem({ ...drink, quantity: e.target.value }, 'drink')}
+          />
+        </div>
+      ))}
+      <button onClick={handleSubmitOrder}>Submit Order</button>
     </div>
   );
-};
+}
 
 export default Pedidos;

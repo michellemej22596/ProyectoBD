@@ -55,7 +55,7 @@ export async function fetchOrderDetails(orderId) {
 //MOSTRAR PLATILLOS
 export async function fetchPlates() {
   const query = `
-    SELECT Name, Price
+    SELECT Name, Price, itemid
     FROM Item
     WHERE ItemType = 'Plate';
   `;
@@ -66,7 +66,7 @@ export async function fetchPlates() {
 //MOSTRAR BEBIDAS 
 export async function fetchDrinks() {
   const query = `
-    SELECT Name, Price
+    SELECT Name, Price, itemid
     FROM Item
     WHERE ItemType = 'Drink'; 
   `;

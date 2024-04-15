@@ -9,7 +9,8 @@ import {printOrder,
     getOrderDetailsByTable, 
     updateOrderToPrepared, 
     updateFoodPrepared,
-     updateDrinksPrepared } from '../controllers/orderController.js';
+    updateDrinksPrepared, 
+    closeAccountByTable } from '../controllers/orderController.js';
 
 const router = express.Router();
 
@@ -28,6 +29,7 @@ router.patch('/order/:orderId/preparedFood', updateFoodPrepared);
 router.patch('/order/:orderId/preparedDrinks', updateDrinksPrepared);
 
 router.patch('order/:orderId/prepared', updateOrderToPrepared);
+router.patch('/orders/close/:tableNumber', closeAccountByTable);
 
 
 export default router;
