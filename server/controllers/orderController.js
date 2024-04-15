@@ -12,7 +12,8 @@ import { getKitchenOrders,
   updateOrderStatusToPreparedJustFood, 
   updateOrderStatusToPreparedJustDrinks,
   fetchLatestOrderIdByTable,
-  insertSurvey } from '../database/db.js';
+  insertSurvey, 
+  insertComplaint } from '../database/db.js';
 
 
 
@@ -216,5 +217,16 @@ export async function createSurvey(req, res) {
   } catch (error) {
     console.error('Error creating survey:', error);
     res.status(500).json({ message: 'Error creating survey' });
+  }
+}
+
+export async function createComplaint(req, res) {
+  const { customer, reason, classification, personnel, itemId } = req.body;
+  try {
+    const newComplaint = await insertComplaint(customer, reason, classification, personnel, itemId);
+    res.status(201).json(newComplaint);
+  } catch (error) {
+    console.error('Error creating complaint:', error);
+    res.status(500).json({ message: 'Error creating complaint' });
   }
 }

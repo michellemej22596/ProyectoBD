@@ -312,3 +312,13 @@ export async function insertSurvey(orderId, waiterQuality, orderAccuracy) {
   return rows[0];
 }
 
+export async function insertComplaint(customer, reason, classification, personnel, itemId) {
+  const query = `
+    INSERT INTO Complaint (Customer, DateTime, Reason, Classification, Personnel, ItemID)
+    VALUES ($1, NOW(), $2, $3, $4, $5) RETURNING *;
+  `;
+  const values = [customer, reason, classification, personnel, itemId];
+  const { rows } = await pool.query(query, values);
+  return rows[0];
+}
+

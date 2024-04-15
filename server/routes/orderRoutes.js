@@ -12,7 +12,9 @@ import {printOrder,
     updateDrinksPrepared, 
     closeAccountByTable, 
     getLatestOrderForTable,
-    createSurvey } from '../controllers/orderController.js';
+    createSurvey,
+    createComplaint
+} from '../controllers/orderController.js';
 
 const router = express.Router();
 
@@ -35,6 +37,9 @@ router.patch('/orders/close/:tableNumber', closeAccountByTable);
 router.get('/orders/latest/:tableNumber', getLatestOrderForTable);
 
 router.post('/surveys', createSurvey);
+router.post('/complaints', createComplaint);
+
+
 
 
 

@@ -64,33 +64,50 @@ function Factura() {
   const generatePdf = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
-    let yPosition = 45;
+    let yPosition = 60; // Comenzar un poco más abajo para dar espacio al logo
   
-    // Imagen del logotipo de Winery
-    doc.addImage('../../public/images/Logo.png', 'PNG', 5, 10, 40, 20); // ajusta las dimensiones según sea necesario
+    // Agrega la imagen de logo al PDF
+    doc.addImage('/images/Logo.png', 'PNG', 5, 10, 40, 20); // Ajusta las dimensiones según sea necesario
+    
+    // Establece una fuente para el título
+    doc.setFontSize(16);
+    doc.setFont(undefined, 'bold');
+    doc.text('Factura', pageWidth / 2, 50, { align: 'center' });
+    
+    // Restablece la fuente para el cuerpo del texto
     doc.setFontSize(12);
-    doc.text(`Detalles de la Factura para la Mesa: ${tableNumber}`, 5, yPosition);
+    doc.setFont(undefined, 'normal');
+    
+    // Agrega detalles del cliente
+    doc.text(`Mesa: ${tableNumber}`, 10, yPosition);
     yPosition += 10;
-    doc.text(`Nombre del Cliente: ${customerName}`, 5, yPosition);
+    doc.text(`Cliente: ${customerName}`, 10, yPosition);
     yPosition += 10;
-    doc.text(`NIT: ${customerNit}`, 5, yPosition);
+    doc.text(`NIT: ${customerNit}`, 10, yPosition);
     yPosition += 10;
-    doc.text(`Dirección: ${customerAddress}`, 5, yPosition);
+    doc.text(`Dirección: ${customerAddress}`, 10, yPosition);
     yPosition += 10;
   
+    // Detalles de la orden
     let totalAmount = 0;
+    doc.setFont(undefined, 'bold');
+    doc.text('Detalle de la Orden:', 10, yPosition);
+    yPosition += 10;
+    doc.setFont(undefined, 'normal');
   
-    orderDetails.forEach((item, index) => {
-      const itemText = `${item.name} - ${item.quantity} unidades - Descripción: ${item.description} - Precio Total: $${item.totalitemprice}`;
-      doc.text(itemText, 5, yPosition); // Alinear a la izquierda
+    // Itera a través de los detalles del pedido para añadirlos
+    orderDetails.forEach((item) => {
+      const itemText = `${item.name} - ${item.quantity} unidades - $${item.price}`;
+      doc.text(itemText, 10, yPosition);
       yPosition += 10;
-      totalAmount += parseFloat(item.totalitemprice);
+      totalAmount += item.quantity * item.price;
     });
   
-    // Mostrar el total de la factura
-    doc.text(`Total: $${totalAmount.toFixed(2)}`, 5, yPosition);
-    yPosition += 10;
+    // Agrega el total de la factura
+    doc.setFont(undefined, 'bold');
+    doc.text(`Total a pagar: $${totalAmount.toFixed(2)}`, 10, yPosition);
   
+    // Finalmente guarda el PDF
     doc.save(`Factura_Mesa_${tableNumber}.pdf`);
   };
   

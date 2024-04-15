@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../styles/Button.css';
 
 function Encuesta() {
   const [orderId, setOrderId] = useState('');
@@ -34,9 +35,21 @@ function Encuesta() {
     }
   };
 
+  const titleStyle = {
+    backgroundColor: '#fff3e6',
+    padding: '10px 20px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+    height: '60px',
+  };
+
   return (
     <div>
-      <h1>Encuesta de Satisfacción</h1>
+        <h1 style={{ textAlign: 'center', margin: 0 }}>Encuesta de satisfacción</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {success && <p style={{ color: 'green' }}>{success}</p>}
       <form onSubmit={handleSubmit}>
@@ -52,10 +65,10 @@ function Encuesta() {
           Precisión del Pedido (1-5):
           <input type="number" min="1" max="5" value={orderAccuracy} onChange={e => setOrderAccuracy(e.target.value)} />
         </label>
-        <button type="submit">Enviar Encuesta</button>
+        <button type="submit" className="custom-button">Enviar Encuesta</button>
       </form>
     </div>
   );
 }
 
-export default Encuesta;
+export default Encuesta;
