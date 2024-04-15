@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../styles/Button.css';
 
 function Queja() {
   const [customer, setCustomer] = useState('');
@@ -38,33 +39,38 @@ function Queja() {
     }
   };
 
+  const labelStyle = {
+    display: 'block',
+    marginBottom: '15px' // Este es el espaciado entre los componentes
+  };
+
   return (
     <div>
-      <h1>Registrar Queja</h1>
+      <h1 style={{ textAlign: 'center', margin: '20px 0' }}>Registrar Queja</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {success && <p style={{ color: 'green' }}>{success}</p>}
       <form onSubmit={handleSubmit}>
-        <label>
+        <label style={labelStyle}>
           Nombre del Cliente:
           <input type="text" value={customer} onChange={e => setCustomer(e.target.value)} />
         </label>
-        <label>
+        <label style={labelStyle}>
           Motivo de la Queja:
           <input type="text" value={reason} onChange={e => setReason(e.target.value)} />
         </label>
-        <label>
+        <label style={labelStyle}>
           Clasificación (1-5):
           <input type="number" min="1" max="5" value={classification} onChange={e => setClassification(e.target.value)} />
         </label>
-        <label>
+        <label style={labelStyle}>
           Personal Involucrado:
           <input type="text" value={personnel} onChange={e => setPersonnel(e.target.value)} />
         </label>
-        <label>
+        <label style={labelStyle}>
           ID del Producto (opcional):
           <input type="number" value={itemId} onChange={e => setItemId(e.target.value)} />
         </label>
-        <button type="submit">Enviar Queja</button>
+        <button type="submit" className="custom-button">Enviar Queja</button>
       </form>
     </div>
   );
