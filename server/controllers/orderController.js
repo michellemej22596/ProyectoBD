@@ -8,7 +8,9 @@ import { getKitchenOrders,
   insertOrderDetails,
   fetchOrderDetails,
   findOrderByTable, 
-  markOrderAsPrepared } from '../database/db.js';
+  markOrderAsPrepared, 
+  updateOrderStatusToPreparedJustFood, 
+  updateOrderStatusToPreparedJustDrinks } from '../database/db.js';
 
 
 
@@ -148,5 +150,26 @@ export async function takeOrder(req, res) {
       res.status(500).json({ error: 'Internal server error' });
     }
   }
+
+  export async function updateFoodPrepared(req, res) {
+    try {
+      await updateOrderStatusToPreparedJustFood(req.params.orderId);
+      res.status(200).send('Food preparation status updated.');
+    } catch (error) {
+      console.error('Error updating food preparation status:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+  
+  export async function updateDrinksPrepared(req, res) {
+    try {
+      await updateOrderStatusToPreparedJustDrinks(req.params.orderId);
+      res.status(200).send('Drink preparation status updated.');
+    } catch (error) {
+      console.error('Error updating drink preparation status:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+  
 
   

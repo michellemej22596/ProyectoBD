@@ -4,42 +4,28 @@ function Cocina() {
   const [orders, setOrders] = useState({});
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/orders/kitchen');
-        if (response.ok) {
-          const data = await response.json();
-          // Agrupa los ítems por orderId
-          const groupedOrders = data.reduce((acc, item) => {
-            acc[item.orderId] = acc[item.orderId] || [];
-            acc[item.orderId].push(item);
-            return acc;
-          }, {});
-          setOrders(groupedOrders);
-        } else {
-          console.error('Error fetching orders:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Error fetching kitchen orders:', error);
-      }
-    };
-    fetchOrders();
+    fetch('http://localhost:3000/orders/kitchen')
+    .then(response => response.json())
+    .then(data => {
+      // Agrupa los ítems por orderID
+      const groupedOrders = data.reduce((acc, item) => {
+        acc[item.orderid] = acc[item.orderid] || [];
+        acc[item.orderid].push(item);
+        return acc;
+      }, {});
+      setOrders(groupedOrders);
+    })
+    .catch(error => console.error('Error fetching kitchen orders:', error));
+
   }, []);
 
-  const handleMarkAsPrepared = async (orderId) => {
-    try {
-      const response = await fetch(`http://localhost:3000/orders/order/${orderId}/prepared`, { method: 'PATCH' });
-      if (response.ok) {
-        const updatedOrders = { ...orders };
-        delete updatedOrders[orderId];
-        setOrders(updatedOrders);
-      } else {
-        console.error('Error marking order as prepared:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error marking order as prepared:', error);
-    }
-  };
+   const handleMarkAsPrepared = (orderId) => {
+    
+    // Llamada a la API para marcar la orden como preparada
+    fetch(`http://localhost:3000/orders/order/${orderId}/preparedFood`, { method: 'PATCH' })
+      .then(response => response.ok && delete orders[orderId] && setOrders({ ...orders }))
+      .catch(error => console.error('Error marking order as prepared:', error));
+   }
 
   // Estilos
   const titleStyle = {
@@ -89,7 +75,7 @@ function Cocina() {
           <div key={orderId} style={orderStyle}>
             <h2>Orden #{orderId}</h2>
             {orderItems.map((item, index) => (
-              <p key={index}>{item.name} - {item.quantity} unidades - Descripción: {item.description}</p>
+              <p key={index}>{item.name} - {item.totalquantity} unidades - Descripción: {item.description}</p>
             ))}
             <button style={buttonStyle} onClick={() => handleMarkAsPrepared(orderId)}>
               Marcar como Preparado

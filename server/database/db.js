@@ -26,12 +26,13 @@ export async function register(userName, passwordHash, userType) {
 //COCINA
 export async function getKitchenOrders() {
   const query = `
-    SELECT od.Quantity, i.Name, i.Description, ro.DateTime, ro.orderid
-    FROM OrderDetail od
-    JOIN Item i ON od.ItemID = i.ItemID
-    JOIN RestaurantOrder ro ON od.OrderID = ro.OrderID
-    WHERE i.ItemType = 'Plate' AND ro.Status = 'Open'
-    ORDER BY ro.DateTime ASC
+  SELECT i.Name, i.Description, SUM(od.Quantity) AS TotalQuantity, ro.DateTime, ro.OrderID
+  FROM OrderDetail od
+  JOIN Item i ON od.ItemID = i.ItemID
+  JOIN RestaurantOrder ro ON od.OrderID = ro.OrderID
+  WHERE i.ItemType = 'Plate' AND (ro.Status = 'Open' OR ro.Status = 'preparedJustDrinks')
+  GROUP BY i.Name, i.Description, ro.DateTime, ro.OrderID
+  ORDER BY ro.DateTime ASC;
   `;
   const { rows } = await pool.query(query);
   return rows;
@@ -76,12 +77,13 @@ export async function fetchDrinks() {
 //BAR
 export async function getBarOrders () {
   const query = `
-    SELECT od.Quantity, i.Name, i.Description, ro.DateTime, od.orderid
-    FROM OrderDetail od
-    JOIN Item i ON od.ItemID = i.ItemID
-    JOIN RestaurantOrder ro ON od.OrderID = ro.OrderID
-    WHERE i.ItemType = 'Drink' AND ro.Status = 'Open'
-    ORDER BY ro.DateTime ASC
+  SELECT i.Name, i.Description, SUM(od.Quantity) AS TotalQuantity, ro.DateTime, ro.OrderID
+  FROM OrderDetail od
+  JOIN Item i ON od.ItemID = i.ItemID
+  JOIN RestaurantOrder ro ON od.OrderID = ro.OrderID
+  WHERE i.ItemType = 'Drink' AND (ro.Status = 'Open' OR ro.Status = 'preparedJustFood')
+  GROUP BY i.Name, i.Description, ro.DateTime, ro.OrderID
+  ORDER BY ro.DateTime ASC;
   `;
   const { rows } = await pool.query(query);
   return rows;
@@ -162,18 +164,6 @@ export async function findOrderByTable(tableNumber) {
   console.log("Order found:", rows[0]);
 return rows.length ? rows[0] : null;
 }
-
-//Actualizar una orden a preparada 
-
-export async function markOrderAsPrepared(orderId) {
-  const query = `
-    UPDATE RestaurantOrder
-    SET Status = 'Prepared'
-    WHERE OrderID = $1;
-  `;
-  await pool.query(query, [orderId]);
-}
-
 
 
 //REPORTES
@@ -265,3 +255,40 @@ export async function fetchWaiterEfficiency() {
   const { rows } = await pool.query(query);
   return rows;
 }
+
+//Actualizar una orden a preparada 
+
+export async function markOrderAsPrepared(orderId) {
+  const query = `
+    UPDATE RestaurantOrder
+    SET Status = 'Prepared'
+    WHERE OrderID = $1;
+  `;
+  await pool.query(query, [orderId]);
+}
+
+export async function updateOrderStatusToPreparedJustFood(orderId) {
+  const query = `
+    UPDATE RestaurantOrder
+    SET Status = CASE 
+      WHEN Status = 'preparedJustDrinks' THEN 'prepared'
+      ELSE 'preparedJustFood'
+    END
+    WHERE OrderID = $1 AND (Status = 'Open' OR Status = 'preparedJustDrinks');
+  `;
+  await pool.query(query, [orderId]);
+}
+
+export async function updateOrderStatusToPreparedJustDrinks(orderId) {
+  const query = `
+    UPDATE RestaurantOrder
+    SET Status = CASE 
+      WHEN Status = 'preparedJustFood' THEN 'prepared'
+      ELSE 'preparedJustDrinks'
+    END
+    WHERE OrderID = $1 AND (Status = 'Open' OR Status = 'preparedJustFood');
+  `;
+  await pool.query(query, [orderId]);
+}
+
+

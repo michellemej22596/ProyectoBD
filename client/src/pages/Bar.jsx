@@ -4,26 +4,18 @@ function Bar() {
   const [orders, setOrders] = useState({});
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/orders/bar'); 
-        if (response.ok) {
-          const data = await response.json();
-          // Agrupa los ítems por orderId
-          const groupedOrders = data.reduce((acc, item) => {
-            acc[item.orderId] = acc[item.orderId] || [];
-            acc[item.orderId].push(item);
-            return acc;
-          }, {});
-          setOrders(groupedOrders);
-        } else {
-          console.error('Error fetching orders:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Error fetching bar orders:', error);
-      }
-    };
-    fetchOrders();
+    fetch('http://localhost:3000/orders/bar')
+    .then(response => response.json())
+    .then(data => {
+      // Agrupa los ítems por orderID
+      const groupedOrders = data.reduce((acc, item) => {
+        acc[item.orderid] = acc[item.orderid] || [];
+        acc[item.orderid].push(item);
+        return acc;
+      }, {});
+      setOrders(groupedOrders);
+    })
+    .catch(error => console.error('Error fetching kitchen orders:', error));
   }, []);
 
   const handleMarkAsReady = async (orderId) => {
@@ -89,7 +81,7 @@ function Bar() {
           <div key={orderId} style={orderStyle}>
             <h2>Orden #{orderId}</h2>
             {orderItems.map((item, index) => (
-              <p key={index}>{item.name} - {item.quantity} unidades - Descripción: {item.description}</p>
+              <p key={index}>{item.name} - {item.totalquantity} unidades - Descripción: {item.description}</p>
             ))}
             <button style={buttonStyle} onClick={() => handleMarkAsReady(orderId)}>
               Marcar como Listo
