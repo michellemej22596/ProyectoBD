@@ -20,7 +20,7 @@ function Cocina() {
 
   const handleMarkAsPrepared = (orderId) => {
     // Llamada a la API para marcar la orden como preparada
-    fetch(`http://localhost:3000/orders/markPrepared/${orderId}`, { method: 'PATCH' })
+    fetch(`http://localhost:3000/orders/order/${orderId}/prepared`, { method: 'PATCH' })
       .then(response => response.ok && delete orders[orderId] && setOrders({ ...orders }))
       .catch(error => console.error('Error marking order as prepared:', error));
   };
