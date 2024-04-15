@@ -1,70 +1,42 @@
 import React, { useState, useEffect } from 'react';
 
 function Cocina() {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState({});
 
   useEffect(() => {
-    // Función para cargar las órdenes de la cocina al cargar el componente
-    const fetchKitchenOrders = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/orders/kitchen');
-        if (response.ok) {
-          const data = await response.json();
-          setOrders(data); // Suponemos que la API ya filtra los pedidos "Open"
-        } else {
-          throw new Error('Error al obtener los pedidos de la cocina');
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false); // Indica que la carga ha terminado
-      }
-    };
-
-    fetchKitchenOrders();
+    fetch('http://localhost:3000/orders/kitchen')
+      .then(response => response.json())
+      .then(data => {
+        // Agrupa los ítems por orderID
+        const groupedOrders = data.reduce((acc, item) => {
+          acc[item.orderid] = acc[item.orderid] || [];
+          acc[item.orderid].push(item);
+          return acc;
+        }, {});
+        setOrders(groupedOrders);
+      })
+      .catch(error => console.error('Error fetching kitchen orders:', error));
   }, []);
 
-  // Función para marcar una orden como preparada
-  const handleMarkAsPrepared = async (orderId) => {
-    try {
-      const response = await fetch(`http://localhost:3000/orders/order/${orderId}/prepared`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        // Actualiza el estado de orders para reflejar los cambios
-        setOrders(prevOrders => prevOrders.filter(order => order.orderid !== orderId));
-      } else {
-        throw new Error('Error al actualizar el estado del pedido');
-      }
-    } catch (error) {
-      console.error(error);
-    }
+  const handleMarkAsPrepared = (orderId) => {
+    // Llamada a la API para marcar la orden como preparada
+    fetch(`http://localhost:3000/orders/markPrepared/${orderId}`, { method: 'PATCH' })
+      .then(response => response.ok && delete orders[orderId] && setOrders({ ...orders }))
+      .catch(error => console.error('Error marking order as prepared:', error));
   };
-
-  if (loading) {
-    return <p>Cargando pedidos...</p>;
-  }
 
   return (
     <div>
-      <h1>Pedidos en Cocina</h1>
-      {orders.length > 0 ? (
-       orders.map((order, index) => (
-        <div key={order.orderid + '-' + index}>
-          <p>{order.name} - {order.totalquantity} unidades - Pedido a las {new Date(order.datetime).toLocaleTimeString()}</p>
-          {order.Status !== 'Closed' && (
-            <button onClick={() => handleMarkAsPrepared(order.orderid)}>Marcar como Preparado</button>
-          )}
-          </div>
-        ))
-      ) : (
-        <p>No hay pedidos pendientes.</p>
-      )}
+      <h1>Órdenes de Cocina</h1>
+      {Object.entries(orders).map(([orderId, orderItems]) => (
+        <div key={orderId}>
+          <h2>Orden #{orderId}</h2>
+          {orderItems.map((item, index) => (
+            <p key={index}>{item.name} - {item.totalquantity} unidades - Descripción: {item.description}</p>
+          ))}
+          <button onClick={() => handleMarkAsPrepared(orderId)}>Marcar como Preparado</button>
+        </div>
+      ))}
     </div>
   );
 }
