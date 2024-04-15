@@ -14,18 +14,32 @@ const Reporte = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const buttonStyle = {
+    margin: '10px',
+    width: '220px',
+    height: '50px',
+    backgroundColor: '#78281F',
+    color: 'white',
+    fontSize: '14px',
+    textAlign: 'center',
+    padding: '10px 0',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer'
+  };
+
   const fetchReportData = async () => {
     setLoading(true);
     setError('');
     try {
       const urls = [
         `/report/mostOrderedPlates?startDate=${startDate}&endDate=${endDate}`,
-        `/report//peakOrderTime?startDate=${startDate}&endDate=${endDate}`,
+        `/report/peakOrderTime?startDate=${startDate}&endDate=${endDate}`,
         `/report/averageEatingTime?startDate=${startDate}&endDate=${endDate}`,
         `/report/complaintsByPersonnel?startDate=${startDate}&endDate=${endDate}`,
         `/report/complaintsByDish?startDate=${startDate}&endDate=${endDate}`,
         `/report/waiterEfficiency?startDate=${startDate}&endDate=${endDate}`
-      ];  
+      ];
       const responses = await Promise.all(urls.map(url => fetch(url)));
       const data = await Promise.all(responses.map(res => res.json()));
       setReports({
@@ -55,7 +69,7 @@ const Reporte = () => {
           Fecha de fin:
           <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
         </label>
-        <button onClick={fetchReportData} disabled={!startDate || !endDate}>Generar Reportes</button>
+        <button onClick={fetchReportData} style={buttonStyle} disabled={!startDate || !endDate}>Generar Reportes</button>
       </div>
       {loading && <p>Loading...</p>}
       {error && <p>Error: {error}</p>}

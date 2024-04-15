@@ -8,6 +8,7 @@ import Cocina from './pages/Cocina'
 import Reporte from './pages/Reporte'
 import Impresion from './pages/Impresion';
 import Factura from './pages/Factura';
+import Bar from './pages/Bar';
 
 function Pages({ token, setToken }) {
   return (
@@ -19,7 +20,7 @@ function Pages({ token, setToken }) {
 
       <Route path="/pedidos" element={token ? <Pedidos /> : <Navigate to="/login" />} /> 
       <Route path="/cocina" element={token ? <Cocina /> : <Navigate to="/login" />} /> 
-      <Route path="/bar" element={token ? <Cocina /> : <Navigate to="/login" />} /> 
+      <Route path="/bar" element={token ? <Bar /> : <Navigate to="/login" />} /> 
       <Route path="/imprimirPedido" element={token ? <Impresion /> : <Navigate to="/login" />} /> 
       <Route path="/imprimirFactura" element={token ? <Factura /> : <Navigate to="/login" />} /> 
       <Route path="/reportes" element={token ? <Reporte /> : <Navigate to="/login" />} /> 

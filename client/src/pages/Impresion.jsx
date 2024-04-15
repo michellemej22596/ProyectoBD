@@ -59,7 +59,20 @@ function Impresion() {
     doc.save(`Pedido_Mesa_${tableNumber}.pdf`);
   };
   
-  
+  const buttonStyle = {
+    margin: '10px',
+    width: '220px',
+    height: '50px',
+    backgroundColor: '#78281F',
+    color: 'white',
+    fontSize: '14px',
+    textAlign: 'center',
+    padding: '10px 0',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer'
+  };
+
 
   return (
     <div>
@@ -71,7 +84,7 @@ function Impresion() {
           onChange={(e) => setTableNumber(e.target.value)}
           placeholder="Ingrese número de mesa"
         />
-        <button type="submit">Mostrar Pedido</button>
+        <button type="submit" style={buttonStyle}>Mostrar Pedido</button>
       </form>
       {error && <p>{error}</p>}
       {orderDetails && (
@@ -83,7 +96,7 @@ function Impresion() {
               <p>Precio unitario: ${detail.price} - Precio total: ${detail.totalitemprice}</p>
             </div>
           ))}
-          <button onClick={generatePdf}>Generar PDF</button>
+          <button onClick={generatePdf} style={buttonStyle}>Generar PDF</button>
         </div>
       )}
     </div>

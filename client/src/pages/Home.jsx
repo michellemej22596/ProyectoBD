@@ -22,7 +22,7 @@ const Home = () => {
       <div className="d-flex flex-column align-items-center">
         <button className="btn btn-primary" style={buttonStyle} onClick={() => navigate('/pedidos')}>Tomar Pedido</button>
         <button className="btn btn-secondary" style={buttonStyle} onClick={() => navigate('/cocina')}>Revisar Cocina</button>
-        <button className="btn btn-success" style={buttonStyle} onClick={() => navigate('/bebidas')}>Revisar Bebidas</button>
+        <button className="btn btn-success" style={buttonStyle} onClick={() => navigate('/bar')}>Revisar Bebidas</button>
         <button className="btn btn-info" style={buttonStyle} onClick={() => navigate('/imprimirPedido')}>Mostrar Pedido Por Mesa</button>
         <button className="btn btn-warning" style={buttonStyle} onClick={() => navigate('/imprimirFactura')}>Cerrar Cuenta - Generara Factura</button>
         <button className="btn btn-danger" style={buttonStyle} onClick={() => navigate('/reportes')}>Reportes</button>
