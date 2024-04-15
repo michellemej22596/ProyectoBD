@@ -1,77 +1,72 @@
 import React, { useState, useEffect } from 'react';
 
-const Cocina = () => {
-  const [pedidosCocina, setPedidosCocina] = useState([]);
+function Cocina() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const cargarPedidosCocina = async () => {
+  useEffect(() => {
+    // Función para cargar las órdenes de la cocina al cargar el componente
+    const fetchKitchenOrders = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/orders/kitchen');
+        if (response.ok) {
+          const data = await response.json();
+          setOrders(data); // Suponemos que la API ya filtra los pedidos "Open"
+        } else {
+          throw new Error('Error al obtener los pedidos de la cocina');
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false); // Indica que la carga ha terminado
+      }
+    };
+
+    fetchKitchenOrders();
+  }, []);
+
+  // Función para marcar una orden como preparada
+  const handleMarkAsPrepared = async (orderId) => {
     try {
-      const response = await fetch('http://localhost:3000/orders/kitchen');
+      const response = await fetch(`http://localhost:3000/orders/order/${orderId}/prepared`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
       if (response.ok) {
-        const pedidos = await response.json();
-        // Agregar estado de finalizado a cada pedido
-        const pedidosConEstado = pedidos.map(pedido => ({ ...pedido, finalizado: false }));
-        setPedidosCocina(pedidosConEstado);
+        // Actualiza el estado de orders para reflejar los cambios
+        setOrders(prevOrders => prevOrders.filter(order => order.orderid !== orderId));
       } else {
-        throw new Error('Failed to fetch orders');
+        throw new Error('Error al actualizar el estado del pedido');
       }
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error(error);
     }
   };
 
-  useEffect(() => {
-    cargarPedidosCocina();
-  }, []);
-
-  const marcarComoFinalizado = (index) => {
-    const nuevosPedidos = [...pedidosCocina];
-    nuevosPedidos[index].finalizado = true; // Marcar el pedido como finalizado
-    setPedidosCocina(nuevosPedidos);
-  };
-
-  const buttonStyle = {
-    margin: '10px',
-    width: '220px', 
-    height: '50px',
-    backgroundColor: '#78281F',
-    color: 'white',
-    fontSize: '14px', 
-    textAlign: 'center', 
-    padding: '10px 0', 
-    border: 'none', 
-    borderRadius: '5px', 
-    cursor: 'pointer' 
-  };
-
-  const buttonsContainerStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '10px',
-    marginTop: '20px'
-  };
+  if (loading) {
+    return <p>Cargando pedidos...</p>;
+  }
 
   return (
     <div>
-      <h1 className="mb-4">Pedidos para Cocina</h1>
-      <div style={buttonsContainerStyle}>
-        {pedidosCocina.map((pedido, index) => (
-          <div key={index} style={{ marginBottom: '10px' }}>
-            <p><strong>{pedido.name}</strong> (x{pedido.quantity})</p>
-            <p>{pedido.description}</p>
-            <p>Fecha y Hora: {new Date(pedido.datetime).toLocaleString()}</p>
-            {!pedido.finalizado && (
-              <button style={buttonStyle} onClick={() => marcarComoFinalizado(index)}>
-                Marcar como finalizado
-              </button>
-            )}
-            {pedido.finalizado && <p>Pedido finalizado</p>}
+      <h1>Pedidos en Cocina</h1>
+      {orders.length > 0 ? (
+       orders.map((order, index) => (
+        <div key={order.orderid + '-' + index}>
+          <p>{order.name} - {order.totalquantity} unidades - Pedido a las {new Date(order.datetime).toLocaleTimeString()}</p>
+          {order.Status !== 'Closed' && (
+            <button onClick={() => handleMarkAsPrepared(order.orderid)}>Marcar como Preparado</button>
+          )}
           </div>
-        ))}
-      </div>
+        ))
+      ) : (
+        <p>No hay pedidos pendientes.</p>
+      )}
     </div>
   );
-};
+}
 
 export default Cocina;
-
