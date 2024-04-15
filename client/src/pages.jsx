@@ -9,6 +9,7 @@ import Reporte from './pages/Reporte'
 import Impresion from './pages/Impresion';
 import Factura from './pages/Factura';
 import Bar from './pages/Bar';
+import Encuesta from './pages/Encuesta';
 
 function Pages({ token, setToken }) {
   return (
@@ -17,6 +18,7 @@ function Pages({ token, setToken }) {
 
       <Route path="/login" element={<Login setToken={setToken} />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/survey" element={<Encuesta />} />
 
       <Route path="/pedidos" element={token ? <Pedidos /> : <Navigate to="/login" />} /> 
       <Route path="/cocina" element={token ? <Bar /> : <Navigate to="/login" />} /> 

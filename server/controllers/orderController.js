@@ -11,7 +11,8 @@ import { getKitchenOrders,
   markOrderAsPrepared, 
   updateOrderStatusToPreparedJustFood, 
   updateOrderStatusToPreparedJustDrinks,
-  fetchLatestOrderIdByTable } from '../database/db.js';
+  fetchLatestOrderIdByTable,
+  insertSurvey } from '../database/db.js';
 
 
 
@@ -204,5 +205,16 @@ export async function getLatestOrderForTable(req, res) {
   } catch (error) {
     console.error('Error fetching latest order ID:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+export async function createSurvey(req, res) {
+  const { orderId, waiterQuality, orderAccuracy } = req.body;
+  try {
+    const newSurvey = await insertSurvey(orderId, waiterQuality, orderAccuracy);
+    res.status(201).json(newSurvey);
+  } catch (error) {
+    console.error('Error creating survey:', error);
+    res.status(500).json({ message: 'Error creating survey' });
   }
 }

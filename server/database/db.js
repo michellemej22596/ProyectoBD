@@ -302,4 +302,13 @@ export async function fetchLatestOrderIdByTable(tableId) {
   return rows[0]; // Devuelve el primer resultado o undefined si no hay órdenes abiertas
 }
 
+export async function insertSurvey(orderId, waiterQuality, orderAccuracy) {
+  const query = `
+    INSERT INTO Survey (OrderID, WaiterQuality, OrderAccuracy)
+    VALUES ($1, $2, $3) RETURNING *;
+  `;
+  const values = [orderId, waiterQuality, orderAccuracy];
+  const { rows } = await pool.query(query, values);
+  return rows[0];
+}
 

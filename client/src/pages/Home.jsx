@@ -26,6 +26,7 @@ const Home = () => {
         <button className="btn btn-info" style={buttonStyle} onClick={() => navigate('/imprimirPedido')}>Mostrar Pedido</button>
         <button className="btn btn-warning" style={buttonStyle} onClick={() => navigate('/imprimirFactura')}>Generar Factura</button>
         <button className="btn btn-danger" style={buttonStyle} onClick={() => navigate('/reportes')}>Reportes</button>
+        <button className="btn btn-danger" style={buttonStyle} onClick={() => navigate('/survey')}>Encuesta</button>
         <button className="btn btn-dark" style={buttonStyle} onClick={handleLogout}>Cerrar Sesión</button>
       </div>
     </div>
