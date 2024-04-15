@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
-} from 'recharts';
+
 
 
 const Reporte = () => {
@@ -63,6 +61,14 @@ const Reporte = () => {
 
   return (
     <div>
+       <style>
+    {`
+      ul {
+        list-style-type: none;
+      }
+    `}
+  </style>
+  
       <h1>Reportes</h1>
       <div>
         <label>
@@ -81,8 +87,11 @@ const Reporte = () => {
     <ul>
       {reports.mostOrderedPlates.map((plate, index) => (
         <li key={`plate-${index}`}>{plate.name}: {plate.totalorders} pedidos</li>
+      
       ))}
     </ul>
+
+
     <h2>Horario con más pedidos</h2>
     <ul>
       {reports.peakOrderTime.map((time, index) => (
@@ -92,8 +101,10 @@ const Reporte = () => {
     <h2>Promedio de tiempo de comida por cantidad de comensales</h2>
     <ul>
       {reports.averageEatingTime.map((time, index) => (
-        <li key={`eating-time-${index}`}>{time.Capacity} personas: {parseFloat(time.AverageMinutes).toFixed(2)} minutos</li>
-      ))}
+        <li key={`eating-time-${index}`}>
+  {time.capacity} personas: 
+  {isNaN(parseFloat(time.averageminutes)) ? 'Valor no disponible' : parseFloat(time.averageminutes).toFixed(2)} minutos
+</li>      ))}
     </ul>
     <h2>Quejas agrupadas por personal</h2>
     <ul>

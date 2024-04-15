@@ -16,7 +16,6 @@ export async function register(userName, passwordHash, userType) {
   return rows[0];
 }
 
-// Si decides agregar una tabla de acciones (actions), podrías incluir una función como esta:
 //export async function userPermissions(userID) {
   // Asumiendo que tienes una tabla de acciones con una columna de UserID
   //const { rows } = await pool.query('SELECT Action FROM Actions WHERE UserID = $1', [userID]);
@@ -177,7 +176,8 @@ export async function fetchMostOrderedPlates (startDate, endDate) {
     JOIN RestaurantOrder ro ON od.OrderID = ro.OrderID
     WHERE ro.DateTime BETWEEN $1 AND $2 AND i.ItemType = 'Plate'
     GROUP BY i.Name
-    ORDER BY TotalOrders DESC;
+    ORDER BY TotalOrders DESC
+    LIMIT 3;
   `;
   const { rows } = await pool.query(query, [startDate, endDate]);
   return rows;
@@ -185,7 +185,7 @@ export async function fetchMostOrderedPlates (startDate, endDate) {
 
 
 
-//HORARIO CON MAS PEDIDOS
+//HORARIO CON MAS PEDIDOS 1
 export async function fetchPeakOrderTime(startDate, endDate) {
   const query = `
     SELECT EXTRACT(HOUR FROM ro.DateTime) as Hour, COUNT(*) as TotalOrders
@@ -289,6 +289,17 @@ export async function updateOrderStatusToPreparedJustDrinks(orderId) {
     WHERE OrderID = $1 AND (Status = 'Open' OR Status = 'preparedJustFood');
   `;
   await pool.query(query, [orderId]);
+}
+
+export async function fetchLatestOrderIdByTable(tableId) {
+  const query = `
+    SELECT OrderID FROM RestaurantOrder
+    WHERE TableID = $1 AND Status != 'closed'
+    ORDER BY DateTime DESC
+    LIMIT 1;
+  `;
+  const { rows } = await pool.query(query, [tableId]);
+  return rows[0]; // Devuelve el primer resultado o undefined si no hay órdenes abiertas
 }
 
 

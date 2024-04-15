@@ -19,6 +19,38 @@ function Factura() {
     }
   };
 
+  const closeOrder = async () => {
+    try {
+      // Obtener el OrderID basado en el número de mesa
+      const orderResponse = await fetch(`http://localhost:3000/orders/orders/latest/${tableNumber}`);
+      const orderData = await orderResponse.json();
+  
+      if (!orderResponse.ok) {
+        throw new Error(orderData.message || 'No se encontró una orden activa para esta mesa.');
+      }
+  
+      // Cerrar la cuenta utilizando el OrderID obtenido
+      const closeResponse = await fetch(`http://localhost:3000/orders/order/${orderData.orderid}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: 'Closed' })
+      });
+      const closeData = await closeResponse.json();
+  
+      if (!closeResponse.ok) {
+        throw new Error(closeData.message || 'Error al cerrar la cuenta.');
+      }
+  
+      alert('La cuenta ha sido cerrada exitosamente. Ahora puedes generar el pdf de tu factura');
+    } catch (error) {
+      console.error('Error closing order:', error);
+      setError(error.message);
+    }
+  };
+  
+
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!tableNumber) {
@@ -112,6 +144,8 @@ function Factura() {
         />
 
         <button type="submit" style={buttonStyle}>Mostrar Factura</button>
+        <button onClick={() => { closeOrder(); }} style={buttonStyle}>Cerrar Factura</button>
+
       </form>
 
       {error && <p>{error}</p>}

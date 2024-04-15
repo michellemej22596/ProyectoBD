@@ -10,7 +10,8 @@ import { getKitchenOrders,
   findOrderByTable, 
   markOrderAsPrepared, 
   updateOrderStatusToPreparedJustFood, 
-  updateOrderStatusToPreparedJustDrinks } from '../database/db.js';
+  updateOrderStatusToPreparedJustDrinks,
+  fetchLatestOrderIdByTable } from '../database/db.js';
 
 
 
@@ -113,7 +114,6 @@ export async function takeOrder(req, res) {
     }
   }
   
-  //Encontrar pedido por mesa
   export async function getOrderDetailsByTable(req, res) {
     
     const { tableNumber } = req.params;
@@ -178,7 +178,6 @@ export async function takeOrder(req, res) {
   // Función para cerrar una orden y establecer el EndTime
 export async function closeOrder(req, res) {
   const { orderId } = req.params;  
-
   try {
     const updatedOrder = await updateOrderStatus(orderId, 'Closed');
     if (updatedOrder) {
@@ -192,3 +191,18 @@ export async function closeOrder(req, res) {
   }
 }
   
+
+export async function getLatestOrderForTable(req, res) {
+  const { tableNumber } = req.params;
+  try {
+    const order = await fetchLatestOrderIdByTable(tableNumber);
+    if (order) {
+      res.json(order);
+    } else {
+      res.status(404).json({ message: 'No active order found for this table.' });
+    }
+  } catch (error) {
+    console.error('Error fetching latest order ID:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}

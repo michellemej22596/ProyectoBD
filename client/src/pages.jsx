@@ -19,8 +19,8 @@ function Pages({ token, setToken }) {
       <Route path="/register" element={<Register />} />
 
       <Route path="/pedidos" element={token ? <Pedidos /> : <Navigate to="/login" />} /> 
-      <Route path="/cocina" element={<Cocina />} /> 
-      <Route path="/bar" element={<Bar />} /> 
+      <Route path="/cocina" element={token ? <Bar /> : <Navigate to="/login" />} /> 
+      <Route path="/bar" element={token ? <Cocina /> : <Navigate to="/login" />} /> 
       <Route path="/imprimirPedido" element={token ? <Impresion /> : <Navigate to="/login" />} /> 
       <Route path="/imprimirFactura" element={token ? <Factura /> : <Navigate to="/login" />} /> 
       <Route path="/reportes" element={token ? <Reporte /> : <Navigate to="/login" />} /> 
