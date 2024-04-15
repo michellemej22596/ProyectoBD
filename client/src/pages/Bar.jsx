@@ -4,26 +4,18 @@ function Bar() {
   const [orders, setOrders] = useState({});
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/orders/bar'); 
-        if (response.ok) {
-          const data = await response.json();
-          // Agrupa los ítems por orderId
-          const groupedOrders = data.reduce((acc, item) => {
-            acc[item.orderId] = acc[item.orderId] || [];
-            acc[item.orderId].push(item);
-            return acc;
-          }, {});
-          setOrders(groupedOrders);
-        } else {
-          console.error('Error fetching orders:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Error fetching bar orders:', error);
-      }
-    };
-    fetchOrders();
+    fetch('http://localhost:3000/orders/bar')
+    .then(response => response.json())
+    .then(data => {
+      // Agrupa los ítems por orderID
+      const groupedOrders = data.reduce((acc, item) => {
+        acc[item.orderid] = acc[item.orderid] || [];
+        acc[item.orderid].push(item);
+        return acc;
+      }, {});
+      setOrders(groupedOrders);
+    })
+    .catch(error => console.error('Error fetching kitchen orders:', error));
   }, []);
 
   const handleMarkAsReady = async (orderId) => {
@@ -85,28 +77,25 @@ function Bar() {
     marginRight: 'auto'
   };
 
+
   return (
-    <div style={{ height: '100%', overflowY: 'auto' }}>
-      <div style={titleStyle}>
-        <h1 style={{ textAlign: 'center', lineHeight: '60px', margin: 0 }}>Órdenes de Bar</h1>
-      </div>
-      <div style={contentStyle}>
-        {Object.keys(orders).length === 0 && <p>No hay órdenes en el Bar.</p>}
-        {Object.entries(orders).map(([orderId, items]) => (
+    <div style={{ paddingTop: '60px' }}>
+      <header style={titleStyle}>
+        <h1 style={{ textAlign: 'center', margin: 0 }}>Órdenes del Bar</h1>
+      </header>
+      <section style={contentStyle}>
+        {Object.entries(orders).map(([orderId, orderItems]) => (
           <div key={orderId} style={orderStyle}>
             <h2>Orden #{orderId}</h2>
-            {items.map((item, index) => (
-              <p key={index}>{item.name} - {item.quantity} unidades - {item.description}</p>
+            {orderItems.map((item, index) => (
+              <p key={index}>{item.name} - {item.totalquantity} unidades - Descripción: {item.description}</p>
             ))}
-            <button
-              style={buttonStyle}
-              onClick={() => handleMarkAsReady(orderId)}
-            >
-              Marcar como Preparado
+            <button style={buttonStyle} onClick={() => handleMarkAsReady(orderId)}>
+              Marcar como Listo
             </button>
           </div>
         ))}
-      </div>
+      </section>
     </div>
   );
 }

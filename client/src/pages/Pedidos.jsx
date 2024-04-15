@@ -1,6 +1,6 @@
-import './Button.css';
-import './App.css';
-import './Input.css';
+import '../styles/Button.css';
+import '../styles/App.css';
+import '../styles/Input.css';
 import React, { useState, useEffect } from 'react';
 
 function Pedidos() {
@@ -88,14 +88,14 @@ function Pedidos() {
 
   return (
       <div className="pedido-container">
-        <h1 className="pedido-title">Take Order</h1>
+        <h1 className="pedido-title">Tomar Pedido</h1>
         <div className="pedido-input-group">
           <input
             className="custom-input" // Input.css
             type="text"
             value={tableId}
             onChange={(e) => setTableId(e.target.value)}
-            placeholder="Enter table ID"
+            placeholder="No. de mesa"
           />
         </div>
         {plates.map((plate) => (
@@ -105,7 +105,7 @@ function Pedidos() {
               className="custom-input" // Usando la misma clase para mantener el estilo
               type="number"
               min="1"
-              placeholder="Quantity"
+              placeholder="Cantidad"
               onChange={(e) => handleAddItem({ ...plate, quantity: e.target.value }, 'plate')}
             />
           </div>

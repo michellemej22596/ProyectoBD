@@ -45,6 +45,9 @@ CREATE TABLE RestaurantOrder (
     FOREIGN KEY (UserID) REFERENCES RestaurantUser(UserID)
 );
 
+ALTER TABLE RestaurantOrder
+ADD COLUMN EndTime TIMESTAMP;
+
 CREATE TABLE Item (
     ItemID SERIAL PRIMARY KEY,
     Name VARCHAR(255) NOT NULL,
